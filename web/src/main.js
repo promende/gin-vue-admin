@@ -13,6 +13,10 @@ import auth from '@/directive/auth'
 import '@/permission'
 import { store } from '@/store/index'
 
+//引入
+import axios from "axios";
+Vue.prototype.$axios = axios
+
 import App from './App.vue'
 const app = createApp(App)
 app.config.productionTip = false

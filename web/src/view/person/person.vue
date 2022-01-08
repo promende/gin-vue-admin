@@ -9,7 +9,7 @@
                 <el-icon>
                   <edit />
                 </el-icon>
-                重新上传</span>
+                更换头像</span>
             </div>
             <div class="user-personality">
               <p v-if="!editFlag" class="nickName">{{ userInfo.nickName }}
@@ -26,7 +26,7 @@
                   <close />
                 </el-icon>
               </p>
-              <p class="person-info">这个家伙很懒，什么都没有留下</p>
+              <!-- <p class="person-info">这个家伙很懒，什么都没有留下</p> -->
             </div>
             <div class="user-information">
               <ul>
@@ -36,7 +36,7 @@
                   </el-icon>
                   {{ userInfo.nickName }}
                 </li>
-                <el-tooltip class="item" effect="light" content="北京反转极光科技有限公司-技术部-前端事业群" placement="top">
+                <!-- <el-tooltip class="item" effect="light" content="北京反转极光科技有限公司-技术部-前端事业群" placement="top">
                   <li>
                     <el-icon>
                       <data-analysis />
@@ -57,7 +57,7 @@
                     </el-icon>
                     GoLang/JavaScript/Vue/Gorm
                   </li>
-                </el-tooltip>
+                </el-tooltip> -->
 
               </ul>
             </div>
@@ -69,7 +69,7 @@
           <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="账号绑定" name="second">
               <ul>
-                <li>
+                <!-- <li>
                   <p class="title">密保手机</p>
                   <p class="desc">
                     已绑定手机:1245678910
@@ -89,7 +89,7 @@
                     未设置密保问题
                     <a href="javascript:void(0)">去设置</a>
                   </p>
-                </li>
+                </li> -->
                 <li>
                   <p class="title">修改密码</p>
                   <p class="desc">
@@ -273,8 +273,7 @@ export default {
   width: 80%;
   height: 100%;
   .user-card {
-    min-height: calc(90vh - 200px);
-    padding: 30px 20px;
+    padding: 20px 20px;
     text-align: center;
     .el-avatar {
       border-radius: 50%;

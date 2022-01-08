@@ -23,14 +23,6 @@
       v-if="btnShow"
       class="user-box"
     >
-      <el-icon class="reload" :class="[reload ? 'reloading' : '']" @click="handleReload">
-        <refresh />
-      </el-icon>
-    </div>
-    <div
-      v-if="btnShow"
-      class="user-box"
-    >
       <el-icon class="search-icon" @click="showSearch()">
         <search />
       </el-icon>
@@ -39,14 +31,22 @@
       v-if="btnShow"
       class="user-box"
     >
-      <Screenfull class="search-icon" :style="{cursor:'pointer'}" />
+      <el-icon class="reload" :class="[reload ? 'reloading' : '']" @click="handleReload">
+        <refresh />
+      </el-icon>
     </div>
     <div
       v-if="btnShow"
       class="user-box"
     >
-      <el-icon class="search-icon" @click="toService"><service /></el-icon>
+      <Screenfull class="search-icon" :style="{cursor:'pointer'}" />
     </div>
+    <!-- <div
+      v-if="btnShow"
+      class="user-box"
+    >
+      <el-icon class="search-icon" @click="toService"><service /></el-icon>
+    </div> -->
   </div>
 </template>
 

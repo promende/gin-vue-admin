@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="drawer" title="媒体库">
+  <el-drawer v-model="drawer" title="头像">
     <div class="media">
       <el-image
         v-for="(item,key) in picList"

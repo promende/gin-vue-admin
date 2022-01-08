@@ -4,7 +4,7 @@
       <el-row :class="[isShadowBg?'shadowBg':'']" @click="changeShadow()" />
       <el-aside class="main-cont main-left">
         <div class="tilte" :style="{background: backgroundColor}">
-          <img alt class="logoimg" :src="$GIN_VUE_ADMIN.appLogo">
+          <img alt class="logoimg" src="@/assets/logo.png">
           <h2 v-if="isSider" class="tit-text" :style="{color:textColor}">{{ $GIN_VUE_ADMIN.appName }}</h2>
         </div>
         <Aside class="aside" />
@@ -39,11 +39,13 @@
                     </el-col>
                     <el-col :xs="12" :lg="9" :md="9" :sm="14" :xl="9">
                       <div class="right-box">
+                        <!-- 搜索栏 -->
                         <Search />
                         <el-dropdown>
                           <div class="dp-flex justify-content-center align-items height-full width-full">
                             <span class="header-avatar" style="cursor: pointer">
-                              <CustomPic />
+                              <!-- 头像 -->
+                              <CustomPic /> 
                               <span style="margin-left: 5px">{{ userInfo.nickName }}</span>
                               <el-icon>
                                 <arrow-down />
