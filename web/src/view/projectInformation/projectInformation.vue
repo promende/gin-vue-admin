@@ -3,13 +3,13 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="项目名称">
-          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
+          <el-input v-model="searchInfo.name" placeholder="支持模糊搜索" />
         </el-form-item>
         <el-form-item label="项目简称">
-          <el-input v-model="searchInfo.abbreviation" placeholder="搜索条件" />
+          <el-input v-model="searchInfo.abbreviation" placeholder="支持模糊搜索" />
         </el-form-item>
         <el-form-item label="负责人">
-          <el-input v-model="searchInfo.principal" placeholder="搜索条件" />
+          <el-input v-model="searchInfo.principal" placeholder="支持模糊搜索" />
         </el-form-item>
         <el-form-item label="营运状态">
           <el-select v-model="searchInfo.operatingState" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
@@ -101,7 +101,7 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增项目">
       <el-form :model="formData" label-position="right" label-width="120px">
         <el-form-item label="项目名称:">
           <el-input v-model="formData.name" clearable placeholder="请输入" />

@@ -36,18 +36,6 @@ export const register = (data) => {
   })
 }
 
-// @Summary 修改密码
-// @Produce  application/json
-// @Param data body {username:"string",password:"string",newPassword:"string"}
-// @Router /user/changePassword [post]
-export const changePassword = (data) => {
-  return service({
-    url: '/user/changePassword',
-    method: 'post',
-    data: data
-  })
-}
-
 // @Tags User
 // @Summary 分页获取用户列表
 // @Security ApiKeyAuth
@@ -139,6 +127,18 @@ export const getUserInfo = () => {
   return service({
     url: '/user/getUserInfo',
     method: 'get'
+  })
+}
+
+// @Summary 修改密码
+// @Produce  application/json
+// @Param data body {username:"string",password:"string",newPassword:"string"}
+// @Router /user/changePassword [post]
+export const changePassword = (data) => {
+  return service({
+    url: '/user/changePassword',
+    method: 'post',
+    data: data
   })
 }
 

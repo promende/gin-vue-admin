@@ -129,28 +129,7 @@ func (b *BaseApi) Register(c *gin.Context) {
 	}
 }
 
-// @Tags SysUser
-// @Summary 用户修改密码
-// @Security ApiKeyAuth
-// @Produce  application/json
-// @Param data body systemReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
-// @Router /user/changePassword [post]
-func (b *BaseApi) ChangePassword(c *gin.Context) {
-	var user systemReq.ChangePasswordStruct
-	_ = c.ShouldBindJSON(&user)
-	if err := utils.Verify(user, utils.ChangePasswordVerify); err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
-	}
-	u := &system.SysUser{Username: user.Username, Password: user.Password}
-	if err, _ := userService.ChangePassword(u, user.NewPassword); err != nil {
-		global.GVA_LOG.Error("修改失败!", zap.Error(err))
-		response.FailWithMessage("修改失败，原密码与当前账户不符", c)
-	} else {
-		response.OkWithMessage("修改成功", c)
-	}
-}
+
 
 // @Tags SysUser
 // @Summary 分页获取用户列表
@@ -307,13 +286,37 @@ func (b *BaseApi) GetUserInfo(c *gin.Context) {
 // @Summary 用户修改密码
 // @Security ApiKeyAuth
 // @Produce  application/json
+// @Param data body systemReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/changePassword [post]
+func (b *BaseApi) ChangePassword(c *gin.Context) {
+	var user systemReq.ChangePasswordStruct
+	_ = c.ShouldBindJSON(&user)
+	if err := utils.Verify(user, utils.ChangePasswordVerify); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	u := &system.SysUser{Username: user.Username, Password: user.Password}
+	if err, _ := userService.ChangePassword(u, user.NewPassword); err != nil {
+		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+		response.FailWithMessage("修改失败，原密码与当前账户不符", c)
+	} else {
+		response.OkWithMessage("修改成功", c)
+	}
+}
+
+// @Tags SysUser
+// @Summary 用户重置密码
+// @Security ApiKeyAuth
+// @Produce  application/json
 // @Param data body system.SysUser true "ID"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
 // @Router /user/resetPassword [post]
 func (b *BaseApi) ResetPassword(c *gin.Context) {
 	var user system.SysUser
 	_ = c.ShouldBindJSON(&user)
-	if err := userService.ResetPassword(user.ID); err != nil {
+	ID := utils.GetUserID(c)
+	if err := userService.ResetPassword(ID); err != nil {
 		global.GVA_LOG.Error("重置失败!", zap.Error(err))
 		response.FailWithMessage("重置失败"+err.Error(), c)
 	} else {
