@@ -69,22 +69,6 @@ export const setUserAuthority = (data) => {
 }
 
 // @Tags SysUser
-// @Summary 删除用户
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data body request.SetUserAuth true "删除用户"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
-// @Router /user/deleteUser [delete]
-export const deleteUser = (data) => {
-  return service({
-    url: '/user/deleteUser',
-    method: 'delete',
-    data: data
-  })
-}
-
-// @Tags SysUser
 // @Summary 设置用户信息
 // @Security ApiKeyAuth
 // @accept application/json
@@ -142,9 +126,33 @@ export const changePassword = (data) => {
   })
 }
 
-export const resetPassword = () => {
+// @Tags SysUser
+// @Summary 重置用户密码
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body request.SetUserAuth true "重置用户密码"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"重置成功"}"
+export const resetPassword = (data) => {
   return service({
     url: '/user/resetPassword',
-    method: 'post'
+    method: 'post',
+    data: data
+  })
+}
+
+// @Tags SysUser
+// @Summary 删除用户
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body request.SetUserAuth true "删除用户"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Router /user/deleteUser [delete]
+export const deleteUser = (data) => {
+  return service({
+    url: '/user/deleteUser',
+    method: 'delete',
+    data: data
   })
 }

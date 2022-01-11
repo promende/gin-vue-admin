@@ -45,7 +45,7 @@
                           <div class="dp-flex justify-content-center align-items height-full width-full">
                             <span class="header-avatar" style="cursor: pointer">
                               <!-- 头像 -->
-                              <CustomPic /> 
+                              <!-- <CustomPic />  -->
                               <span style="margin-left: 5px">{{ userInfo.nickName }}</span>
                               <el-icon>
                                 <arrow-down />

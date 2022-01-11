@@ -45,6 +45,7 @@ func (u *FileUploadAndDownloadApi) UploadFile(c *gin.Context) {
 // @Param data body example.ExaFileUploadAndDownload true "传入文件里面id即可"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
 // @Router /fileUploadAndDownload/deleteFile [post]
+
 func (u *FileUploadAndDownloadApi) DeleteFile(c *gin.Context) {
 	var file example.ExaFileUploadAndDownload
 	_ = c.ShouldBindJSON(&file)
@@ -64,6 +65,7 @@ func (u *FileUploadAndDownloadApi) DeleteFile(c *gin.Context) {
 // @Param data body request.PageInfo true "页码, 每页大小"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /fileUploadAndDownload/getFileList [post]
+
 func (u *FileUploadAndDownloadApi) GetFileList(c *gin.Context) {
 	var pageInfo request.PageInfo
 	_ = c.ShouldBindJSON(&pageInfo)

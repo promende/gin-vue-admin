@@ -1,6 +1,6 @@
 <template>
   <div class="authority">
-    <warning-bar title="注：右上角头像下拉可切换角色" />
+    <!-- <warning-bar title="注：右上角头像下拉可切换角色" /> -->
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button size="mini" type="primary" icon="plus" @click="addAuthority('0')">新增角色</el-button>
@@ -27,12 +27,12 @@
               type="text"
               @click="addAuthority(scope.row.authorityId)"
             >新增子角色</el-button>
-            <el-button
+            <!-- <el-button
               icon="copy-document"
               size="mini"
               type="text"
               @click="copyAuthority(scope.row)"
-            >拷贝</el-button>
+            >拷贝</el-button> -->
             <el-button
               icon="edit"
               size="mini"

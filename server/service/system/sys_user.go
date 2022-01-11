@@ -117,22 +117,6 @@ func (userService *UserService) SetUserAuthorities(id uint, authorityIds []strin
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
-//@function: DeleteUser
-//@description: 删除用户
-//@param: id float64
-//@return: err error
-
-func (userService *UserService) DeleteUser(id float64) (err error) {
-	var user system.SysUser
-	err = global.GVA_DB.Where("id = ?", id).Delete(&user).Error
-	if err != nil {
-		return err
-	}
-	err = global.GVA_DB.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
-	return err
-}
-
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: SetUserInfo
 //@description: 设置用户信息
 //@param: reqUser model.SysUser
@@ -186,6 +170,7 @@ func (userService *UserService) FindUserByUuid(uuid string) (err error, user *sy
 //@description: 修改用户密码
 //@param: u *model.SysUser, newPassword string
 //@return: err error, userInter *model.SysUser
+
 func (userService *UserService) ChangePassword(u *system.SysUser, newPassword string) (err error, userInter *system.SysUser) {
 	var user system.SysUser
 	u.Password = utils.MD5V([]byte(u.Password))
@@ -193,7 +178,29 @@ func (userService *UserService) ChangePassword(u *system.SysUser, newPassword st
 	return err, u
 }
 
-func (userService *UserService) ResetPassword(ID uint) (err error) {
-	err = global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", ID).Update("password", utils.MD5V([]byte("123456"))).Error
+//@author: [piexlmax](https://github.com/piexlmax)
+//@function: resetPassword
+//@description: 修改用户密码
+//@param: ID uint
+//@return: err error
+
+func (userService *UserService) ResetPassword(id float64) (err error) {
+	err = global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", id).Update("password", utils.MD5V([]byte("123456"))).Error
+	return err
+}
+
+//@author: [piexlmax](https://github.com/piexlmax)
+//@function: DeleteUser
+//@description: 删除用户
+//@param: id float64
+//@return: err error
+
+func (userService *UserService) DeleteUser(id float64) (err error) {
+	var user system.SysUser
+	err = global.GVA_DB.Where("id = ?", id).Delete(&user).Error
+	if err != nil {
+		return err
+	}
+	err = global.GVA_DB.Delete(&[]system.SysUseAuthority{}, "sys_user_id = ?", id).Error
 	return err
 }

@@ -1,17 +1,17 @@
 <template>
   <div>
-    <warning-bar title="注：右上角头像下拉可切换角色" />
+    <!-- <warning-bar title="注：右上角头像下拉可切换角色" /> -->
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button size="mini" type="primary" icon="plus" @click="addUser">新增用户</el-button>
       </div>
       <el-table :data="tableData">
-        <el-table-column align="left" label="头像" min-width="50">
+        <!-- <el-table-column align="center" label="头像" min-width="50">
           <template #default="scope">
             <CustomPic style="margin-top:8px" :pic-src="scope.row.headerImg" />
           </template>
-        </el-table-column>
-        <el-table-column align="left" label="UUID" min-width="250" prop="uuid" />
+        </el-table-column> -->
+        <!-- <el-table-column align="left" label="UUID" min-width="250" prop="uuid" /> -->
         <el-table-column align="left" label="用户名" min-width="150" prop="userName" />
         <el-table-column align="left" label="昵称" min-width="100" prop="nickName">
           <template #default="scope">
@@ -81,7 +81,7 @@
         <el-form-item label="密码" prop="password">
           <el-input v-model="userInfo.password" />
         </el-form-item>
-        <el-form-item label="别名" prop="nickName">
+        <el-form-item label="昵称" prop="nickName">
           <el-input v-model="userInfo.nickName" />
         </el-form-item>
         <el-form-item label="用户角色" prop="authorityId">
@@ -97,7 +97,7 @@
         <el-form-item label="头像" label-width="80px">
           <div style="display:inline-block" @click="openHeaderChange">
             <img v-if="userInfo.headerImg" class="header-img-box" :src="(userInfo.headerImg && userInfo.headerImg.slice(0, 4) !== 'http')?path+userInfo.headerImg:userInfo.headerImg">
-            <div v-else class="header-img-box">从媒体库选择</div>
+            <div v-else class="header-img-box">设置头像</div>
           </div>
         </el-form-item>
 

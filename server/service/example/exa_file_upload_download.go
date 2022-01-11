@@ -49,7 +49,7 @@ func (e *FileUploadAndDownloadService) DeleteFile(file example.ExaFileUploadAndD
 	if err = oss.DeleteFile(fileFromDb.Key); err != nil {
 		return errors.New("文件删除失败")
 	}
-	err = global.GVA_DB.Where("id = ?", file.ID).Unscoped().Delete(&file).Error
+	err = global.GVA_DB.Where("id = ?", file.ID).Delete(&file).Error
 	return err
 }
 

@@ -215,34 +215,6 @@ func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 }
 
 // @Tags SysUser
-// @Summary 删除用户
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data body request.GetById true "用户ID"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
-// @Router /user/deleteUser [delete]
-func (b *BaseApi) DeleteUser(c *gin.Context) {
-	var reqId request.GetById
-	_ = c.ShouldBindJSON(&reqId)
-	if err := utils.Verify(reqId, utils.IdVerify); err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
-	}
-	jwtId := utils.GetUserID(c)
-	if jwtId == uint(reqId.ID) {
-		response.FailWithMessage("删除失败, 自杀失败", c)
-		return
-	}
-	if err := userService.DeleteUser(reqId.ID); err != nil {
-		global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败", c)
-	} else {
-		response.OkWithMessage("删除成功", c)
-	}
-}
-
-// @Tags SysUser
 // @Summary 设置用户信息
 // @Security ApiKeyAuth
 // @accept application/json
@@ -310,16 +282,45 @@ func (b *BaseApi) ChangePassword(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Produce  application/json
 // @Param data body system.SysUser true "ID"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
+// @Success 200 {object} response.Response{msg=string} "用户修改密码"
 // @Router /user/resetPassword [post]
+
 func (b *BaseApi) ResetPassword(c *gin.Context) {
-	var user system.SysUser
-	_ = c.ShouldBindJSON(&user)
-	ID := utils.GetUserID(c)
-	if err := userService.ResetPassword(ID); err != nil {
+	var reqId request.GetById
+	_ = c.ShouldBindJSON(&reqId)
+	if err := userService.ResetPassword(reqId.ID); err != nil {
 		global.GVA_LOG.Error("重置失败!", zap.Error(err))
 		response.FailWithMessage("重置失败"+err.Error(), c)
 	} else {
 		response.OkWithMessage("重置成功", c)
+	}
+}
+
+// @Tags SysUser
+// @Summary 删除用户
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body request.GetById true "用户ID"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
+// @Router /user/deleteUser [delete]
+
+func (b *BaseApi) DeleteUser(c *gin.Context) {
+	var reqId request.GetById
+	_ = c.ShouldBindJSON(&reqId)
+	if err := utils.Verify(reqId, utils.IdVerify); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	jwtId := utils.GetUserID(c)
+	if jwtId == uint(reqId.ID) {
+		response.FailWithMessage("删除失败, 自杀失败", c)
+		return
+	}
+	if err := userService.DeleteUser(reqId.ID); err != nil {
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败", c)
+	} else {
+		response.OkWithMessage("删除成功", c)
 	}
 }

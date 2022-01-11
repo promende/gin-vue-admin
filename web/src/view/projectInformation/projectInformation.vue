@@ -57,7 +57,6 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        
         <el-table-column align="left" label="项目名称" prop="name" width="120" />
         <el-table-column align="left" label="项目简称" prop="abbreviation" width="120" />
         <el-table-column align="left" label="项目地址" prop="address" width="120" />
@@ -102,39 +101,39 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增项目">
-      <el-form :model="formData" label-position="right" label-width="120px">
-        <el-form-item label="项目名称:">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+      <el-form ref="projectForm" :model="formData" label-position="right" label-width="120px" :rules="rules">
+        <el-form-item label="项目名称" prop="name">
+          <el-input v-model.trim="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="项目简称:">
-          <el-input v-model="formData.abbreviation" clearable placeholder="请输入" />
+        <el-form-item label="项目简称" prop="abbreviation">
+          <el-input v-model.trim="formData.abbreviation" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="项目地址:">
-          <el-input v-model="formData.address" clearable placeholder="请输入" />
+        <el-form-item label="项目地址" prop="address">
+          <el-input v-model.trim="formData.address" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="营运状态:">
+        <el-form-item label="营运状态" prop="operatingState">
           <el-select v-model="formData.operatingState" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in OperatingStateOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="经营类型:">
+        <el-form-item label="经营类型" prop="managementType">
           <el-select v-model="formData.managementType" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in managementTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="物业管理类型:">
+        <el-form-item label="物业管理类型" prop="propertyManagementType">
           <el-select v-model="formData.propertyManagementType" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in PropertyManagementTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="建筑面积（㎡）:">
+        <el-form-item label="建筑面积（㎡）" prop="coveredArea">
           <el-input-number v-model="formData.coveredArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="经营面积（㎡）:">
+        <el-form-item label="经营面积（㎡）" prop="operatingArea">
           <el-input-number v-model="formData.operatingArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="负责人:">
-          <el-input v-model="formData.principal" clearable placeholder="请输入" />
+        <el-form-item label="负责人" prop="principal">
+          <el-input v-model.trim="formData.principal" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -161,6 +160,13 @@ export default {
   name: 'ProjectInformation',
   mixins: [infoList],
   data() {
+    const checkName = (rule, value, callback) => {
+      if (value.length === 0) {
+        return callback(new Error('请输入项目名称'))
+      } else {
+        callback()
+      }
+    }
     return {
       listApi: getProjectInformationList,
       dialogFormVisible: false,
@@ -180,7 +186,18 @@ export default {
         coveredArea: 0,
         operatingArea: 0,
         principal: '',
-      }
+      },
+      rules: {
+        name: [{ required: true, message: '请输入项目名称',  trigger: 'blur' }],
+        abbreviation: [{ required: true, message: '请输入项目简称',  trigger: 'blur' }],
+        address: [{ required: true, message: '请输入项目地址',  trigger: 'blur' }],
+        operatingState: [{ required: true, message: '请输入营运状态',  trigger: 'blur' }],
+        managementType: [{ required: true, message: '请输入经营类型',  trigger: 'blur' }],
+        propertyManagementType: [{ required: true, message: '请输入物业管理类型',  trigger: 'blur' }],
+        coveredArea: [{ required: true, message: '请输入建筑面积',  trigger: 'blur' }],
+        operatingArea: [{ required: true, message: '请输入经营面积',  trigger: 'blur' }],
+        principal: [{ required: true, message: '请输入负责人',  trigger: 'blur' }],
+      },
     }
   },
   async created() {
@@ -190,10 +207,10 @@ export default {
     await this.getDict('PropertyManagementType')
   },
   methods: {
-  onReset() {
-    this.searchInfo = {}
-  },
-  // 条件搜索前端看此方法
+    onReset() {
+      this.searchInfo = {}
+    },
+    // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10
@@ -246,6 +263,7 @@ export default {
       }
     },
     closeDialog() {
+      this.$refs.projectForm.resetFields()
       this.dialogFormVisible = false
       this.formData = {
         name: '',
@@ -297,6 +315,14 @@ export default {
     openDialog() {
       this.type = 'create'
       this.dialogFormVisible = true
+    },
+    checkAllwrite() {
+      if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
+          this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
+          this.formData.propertyManagementType,principal != '')
+          return true
+      else
+        return false
     }
   },
 }
