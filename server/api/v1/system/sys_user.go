@@ -129,8 +129,6 @@ func (b *BaseApi) Register(c *gin.Context) {
 	}
 }
 
-
-
 // @Tags SysUser
 // @Summary 分页获取用户列表
 // @Security ApiKeyAuth
@@ -139,6 +137,7 @@ func (b *BaseApi) Register(c *gin.Context) {
 // @Param data body request.PageInfo true "页码, 每页大小"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /user/getUserList [post]
+
 func (b *BaseApi) GetUserList(c *gin.Context) {
 	var pageInfo request.PageInfo
 	_ = c.ShouldBindJSON(&pageInfo)
@@ -167,6 +166,7 @@ func (b *BaseApi) GetUserList(c *gin.Context) {
 // @Param data body systemReq.SetUserAuth true "用户UUID, 角色ID"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
 // @Router /user/setUserAuthority [post]
+
 func (b *BaseApi) SetUserAuthority(c *gin.Context) {
 	var sua systemReq.SetUserAuth
 	_ = c.ShouldBindJSON(&sua)
@@ -203,6 +203,7 @@ func (b *BaseApi) SetUserAuthority(c *gin.Context) {
 // @Param data body systemReq.SetUserAuthorities true "用户UUID, 角色ID"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
 // @Router /user/setUserAuthorities [post]
+
 func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 	var sua systemReq.SetUserAuthorities
 	_ = c.ShouldBindJSON(&sua)
@@ -222,6 +223,7 @@ func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 // @Param data body system.SysUser true "ID, 用户名, 昵称, 头像链接"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"设置成功"}"
 // @Router /user/setUserInfo [put]
+
 func (b *BaseApi) SetUserInfo(c *gin.Context) {
 	var user system.SysUser
 	_ = c.ShouldBindJSON(&user)
@@ -244,6 +246,7 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 // @Produce application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /user/getUserInfo [get]
+
 func (b *BaseApi) GetUserInfo(c *gin.Context) {
 	uuid := utils.GetUserUuid(c)
 	if err, ReqUser := userService.GetUserInfo(uuid); err != nil {
@@ -261,6 +264,7 @@ func (b *BaseApi) GetUserInfo(c *gin.Context) {
 // @Param data body systemReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"修改成功"}"
 // @Router /user/changePassword [post]
+
 func (b *BaseApi) ChangePassword(c *gin.Context) {
 	var user systemReq.ChangePasswordStruct
 	_ = c.ShouldBindJSON(&user)

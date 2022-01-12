@@ -78,7 +78,7 @@
         <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" />
         <el-table-column align="right" label="经营面积（㎡）" prop="operatingArea" width="120" />
         <el-table-column align="left" label="负责人" prop="principal" width="120" />
-        <el-table-column align="left" label="日期" width="180" prop="date" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -134,12 +134,15 @@
         </el-form-item>
         <el-form-item label="负责人" prop="principal">
           <el-input v-model.trim="formData.principal" clearable placeholder="请输入" />
+          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable>
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog();">确 定</el-button>
         </div>
       </template>
     </el-dialog>
@@ -156,6 +159,7 @@ import {
   getProjectInformationList
 } from '@/api/projectInformation' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
+import { getUserList } from '@/api/user'
 export default {
   name: 'ProjectInformation',
   mixins: [infoList],
@@ -172,6 +176,7 @@ export default {
       dialogFormVisible: false,
       type: '',
       deleteVisible: false,
+      principalOptions: [],
       multipleSelection: [],
       OperatingStateOptions: [],
       managementTypeOptions: [],
@@ -188,15 +193,15 @@ export default {
         principal: '',
       },
       rules: {
-        name: [{ required: true, message: '请输入项目名称',  trigger: 'blur' }],
-        abbreviation: [{ required: true, message: '请输入项目简称',  trigger: 'blur' }],
-        address: [{ required: true, message: '请输入项目地址',  trigger: 'blur' }],
-        operatingState: [{ required: true, message: '请输入营运状态',  trigger: 'blur' }],
-        managementType: [{ required: true, message: '请输入经营类型',  trigger: 'blur' }],
+        name:                   [{ required: true, message: '请输入项目名称',  trigger: 'blur' }],
+        abbreviation:           [{ required: true, message: '请输入项目简称',  trigger: 'blur' }],
+        address:                [{ required: true, message: '请输入项目地址',  trigger: 'blur' }],
+        operatingState:         [{ required: true, message: '请输入营运状态',  trigger: 'blur' }],
+        managementType:         [{ required: true, message: '请输入经营类型',  trigger: 'blur' }],
         propertyManagementType: [{ required: true, message: '请输入物业管理类型',  trigger: 'blur' }],
-        coveredArea: [{ required: true, message: '请输入建筑面积',  trigger: 'blur' }],
-        operatingArea: [{ required: true, message: '请输入经营面积',  trigger: 'blur' }],
-        principal: [{ required: true, message: '请输入负责人',  trigger: 'blur' }],
+        coveredArea:            [{ required: true, message: '请输入建筑面积',  trigger: 'blur' }],
+        operatingArea:          [{ required: true, message: '请输入经营面积',  trigger: 'blur' }],
+        principal:              [{ required: true, message: '请输入负责人',  trigger: 'blur' }],
       },
     }
   },
@@ -291,39 +296,55 @@ export default {
       }
     },
     async enterDialog() {
-      let res
-      switch (this.type) {
-        case 'create':
-          res = await createProjectInformation(this.formData)
-          break
-        case 'update':
-          res = await updateProjectInformation(this.formData)
-          break
-        default:
-          res = await createProjectInformation(this.formData)
-          break
+      if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
+          this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
+          this.formData.propertyManagementType != undefined && this.formData.principal != ''){
+        let res
+        switch (this.type) {
+          case 'create':
+            res = await createProjectInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '创建成功'
+              })
+            }
+            break
+          case 'update':
+            res = await updateProjectInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '更改成功'
+              })
+            }
+            break
+          default:
+            res = await createProjectInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '创建成功'
+              })
+            }
+            break
+        }
+        if (res.code === 0) {
+          this.closeDialog()
+          this.getTableData()
+        }
       }
-      if (res.code === 0) {
+      else{
         this.$message({
-          type: 'success',
-          message: '创建/更改成功'
+          type: 'warning',
+          message: '请填写必填项'
         })
-        this.closeDialog()
-        this.getTableData()
       }
     },
     openDialog() {
       this.type = 'create'
       this.dialogFormVisible = true
     },
-    checkAllwrite() {
-      if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
-          this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
-          this.formData.propertyManagementType,principal != '')
-          return true
-      else
-        return false
-    }
   },
 }
 </script>
