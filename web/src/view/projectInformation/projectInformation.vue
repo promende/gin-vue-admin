@@ -75,8 +75,8 @@
             {{ filterDict(scope.row.propertyManagementType,"PropertyManagementType") }}
             </template>
         </el-table-column>
-        <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" />
-        <el-table-column align="right" label="经营面积（㎡）" prop="operatingArea" width="120" />
+        <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" :formatter="rounding"/>
+        <el-table-column align="right" label="经营面积（㎡）" prop="operatingArea" width="120" :formatter="rounding"/>
         <el-table-column align="left" label="负责人" prop="principal" width="120" />
         <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
@@ -156,7 +156,7 @@ import {
   updateProjectInformation,
   findProjectInformation,
   getProjectInformationList
-} from '@/api/projectInformation' //  此处请自行替换地址
+} from '@/api/projectInformation' // 此处请自行替换地址
 import infoList from '@/mixins/infoList'
 import { getUserList } from '@/api/user'
 export default {
@@ -175,6 +175,7 @@ export default {
       dialogFormVisible: false,
       type: '',
       deleteVisible: false,
+      ProjectList: [],
       principalOptions: [],
       multipleSelection: [],
       OperatingStateOptions: [],
@@ -211,10 +212,18 @@ export default {
     await this.getDict('PropertyManagementType')
     const res = await getUserList({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list)
+    const res2 = await getProjectInformationList({ page: 1, pageSize: 999 })
+    this.setProjectList(res2.data.list)
   },
   methods: {
     onReset() {
       this.searchInfo = {}
+    },
+    setProjectList(list) {
+      this.ProjectList = []
+      list && list.forEach(item => {
+        this.ProjectList.push(item.name)
+      })
     },
     setOptions(principalData) {
       this.principalOptions = []
@@ -228,6 +237,9 @@ export default {
         }
         optionsData.push(option)
       })
+    },
+    rounding(row, column) {
+      return parseFloat(row[column.property]).toFixed(2)
     },
     // 条件搜索前端看此方法
     onSubmit() {
@@ -310,9 +322,16 @@ export default {
       }
     },
     async enterDialog() {
+      let flag = 0
+      for(let i = 0 ; i < this.ProjectList.length; i++){
+        if(this.formData.name === this.ProjectList[i]){
+          flag = 1
+          break
+        }
+      }
       if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
           this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
-          this.formData.propertyManagementType != undefined && this.formData.principal != ''){
+          this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){
         let res
         switch (this.type) {
           case 'create':
@@ -349,10 +368,18 @@ export default {
         }
       }
       else{
-        this.$message({
+        if (flag === 1){
+          this.$message({
+          type: 'warning',
+          message: '项目名称重复'
+          })
+        }
+        else{
+          this.$message({
           type: 'warning',
           message: '请填写必填项'
-        })
+          })
+        }
       }
     },
     openDialog() {
