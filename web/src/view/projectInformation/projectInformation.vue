@@ -112,17 +112,17 @@
           <el-input v-model.trim="formData.address" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="营运状态" prop="operatingState">
-          <el-select v-model="formData.operatingState" placeholder="请选择" style="width:100%" clearable>
+          <el-select v-model="formData.operatingState" placeholder="请选择" style="width:100%" clearable filterable>
             <el-option v-for="(item,key) in OperatingStateOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="经营类型" prop="managementType">
-          <el-select v-model="formData.managementType" placeholder="请选择" style="width:100%" clearable>
+          <el-select v-model="formData.managementType" placeholder="请选择" style="width:100%" clearable filterable>
             <el-option v-for="(item,key) in managementTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="物业管理类型" prop="propertyManagementType">
-          <el-select v-model="formData.propertyManagementType" placeholder="请选择" style="width:100%" clearable>
+          <el-select v-model="formData.propertyManagementType" placeholder="请选择" style="width:100%" clearable filterable>
             <el-option v-for="(item,key) in PropertyManagementTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -133,9 +133,8 @@
           <el-input-number v-model="formData.operatingArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
         <el-form-item label="负责人" prop="principal">
-          <el-input v-model.trim="formData.principal" clearable placeholder="请输入" />
-          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
+          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable filterable>
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.principalityName" :value="item.principalityId" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -210,10 +209,25 @@ export default {
     await this.getDict('OperatingState')
     await this.getDict('managementType')
     await this.getDict('PropertyManagementType')
+    const res = await getUserList({ page: 1, pageSize: 999 })
+    this.setOptions(res.data.list)
   },
   methods: {
     onReset() {
       this.searchInfo = {}
+    },
+    setOptions(principalData) {
+      this.principalOptions = []
+      this.setAuthorityOptions(principalData, this.principalOptions)
+    },
+    setAuthorityOptions(PrincipalityData, optionsData) {
+      PrincipalityData && PrincipalityData.forEach(item => {
+        const option = {
+          principalityId: item.nickName,
+          principalityName: item.nickName
+        }
+        optionsData.push(option)
+      })
     },
     // 条件搜索前端看此方法
     onSubmit() {

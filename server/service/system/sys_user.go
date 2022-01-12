@@ -49,8 +49,6 @@ func (userService *UserService) Login(u *system.SysUser) (err error, userInter *
 	return err, &user
 }
 
-
-
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: GetUserInfoList
 //@description: 分页获取数据
@@ -69,6 +67,7 @@ func (userService *UserService) GetUserInfoList(info request.PageInfo) (err erro
 	err = db.Limit(limit).Offset(offset).Preload("Authorities").Preload("Authority").Find(&userList).Error
 	return err, userList, total
 }
+
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: SetUserAuthority
