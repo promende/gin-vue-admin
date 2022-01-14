@@ -3,13 +3,17 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="项目名称">
-          <el-input v-model="searchInfo.name" placeholder="支持模糊搜索" />
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" clearable filterable>
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="项目简称">
           <el-input v-model="searchInfo.abbreviation" placeholder="支持模糊搜索" />
         </el-form-item>
         <el-form-item label="负责人">
-          <el-input v-model="searchInfo.principal" placeholder="支持模糊搜索" />
+          <el-select v-model="searchInfo.principal" placeholder="请选择" style="width:100%" clearable filterable @visible-change="setPrincipalOptions">
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="营运状态">
           <el-select v-model="searchInfo.operatingState" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
@@ -35,7 +39,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();setPrincipalOptions();setProjectList()">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -134,14 +138,14 @@
         </el-form-item>
         <el-form-item label="负责人" prop="principal">
           <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable filterable>
-            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.principalityName" :value="item.principalityId" />
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog();">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
         </div>
       </template>
     </el-dialog>
@@ -181,6 +185,8 @@ export default {
       OperatingStateOptions: [],
       managementTypeOptions: [],
       PropertyManagementTypeOptions: [],
+      principalOptionsInterval: '',
+      projectListInterval: '',
       formData: {
         name: '',
         abbreviation: '',
@@ -210,32 +216,47 @@ export default {
     await this.getDict('OperatingState')
     await this.getDict('managementType')
     await this.getDict('PropertyManagementType')
-    const res = await getUserList({ page: 1, pageSize: 999 })
-    this.setOptions(res.data.list)
-    const res2 = await getProjectInformationList({ page: 1, pageSize: 999 })
-    this.setProjectList(res2.data.list)
+    await this.setPrincipalOptions()
+    await this.setProjectList()
+    await this.setProjectOptions()
   },
   methods: {
     onReset() {
       this.searchInfo = {}
     },
-    setProjectList(list) {
+    async setProjectList() {
       this.ProjectList = []
-      list && list.forEach(item => {
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
         this.ProjectList.push(item.name)
       })
     },
-    setOptions(principalData) {
-      this.principalOptions = []
-      this.setAuthorityOptions(principalData, this.principalOptions)
+    async setProjectOptions() {
+      this.projectOptions = []
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      this.getProjectOptions(res.data.list, this.projectOptions)
     },
-    setAuthorityOptions(PrincipalityData, optionsData) {
-      PrincipalityData && PrincipalityData.forEach(item => {
+    getProjectOptions(data, options) {
+      data && data.forEach(item => {
         const option = {
-          principalityId: item.nickName,
-          principalityName: item.nickName
+          label: item.name,
+          value: item.name  
         }
-        optionsData.push(option)
+        options.push(option)
+      })
+    },
+    async setPrincipalOptions() {
+      this.principalOptions = []
+      const res = await getUserList({ page: 1, pageSize: 999 })
+      this.getPrincipalOptions(res.data.list, this.principalOptions)
+    },
+    getPrincipalOptions(data, options) {
+      data && data.forEach(item => {
+        const option = {
+          label: item.nickName,
+          value: item.nickName
+        }
+        options.push(option)
       })
     },
     rounding(row, column) {
@@ -330,8 +351,8 @@ export default {
         }
       }
       if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
-          this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
-          this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){
+        this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
+        this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){
         let res
         switch (this.type) {
           case 'create':

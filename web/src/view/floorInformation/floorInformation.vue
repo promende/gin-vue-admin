@@ -3,7 +3,9 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-input v-model="searchInfo.project" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋">
           <el-input v-model="searchInfo.build" placeholder="搜索条件" />
@@ -81,7 +83,9 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="120px">
         <el-form-item label="所属项目:">
-          <el-input v-model="formData.project" clearable placeholder="请输入" />
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋:">
           <el-input v-model="formData.build" clearable placeholder="请输入" />
@@ -120,6 +124,7 @@ import {
   findFloorInformation,
   getFloorInformationList
 } from '@/api/floorInformation' //  此处请自行替换地址
+import { getProjectInformationList } from '@/api/projectInformation'
 import infoList from '@/mixins/infoList'
 export default {
   name: 'FloorInformation',
@@ -132,6 +137,7 @@ export default {
       deleteVisible: false,
       multipleSelection: [],
       buildStateOptions: [],
+      projectOptions: [],
       formData: {
         project: '',
         build: '',
@@ -145,12 +151,24 @@ export default {
   async created() {
     await this.getTableData()
     await this.getDict('buildState')
+    await this.setProjectOptions()
   },
   methods: {
-  onReset() {
-    this.searchInfo = {}
-  },
-  // 条件搜索前端看此方法
+    async setProjectOptions() {
+      this.projectOptions = []
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.name,
+          value: item.name
+        }
+        this.projectOptions.push(option)
+      })
+    },
+    onReset() {
+      this.searchInfo = {}
+    },
+    // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10

@@ -3,7 +3,9 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-input v-model="searchInfo.project" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="楼栋名称">
           <el-input v-model="searchInfo.name" placeholder="搜索条件" />
@@ -21,7 +23,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();getBuildingList();setProjectOptions();">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -78,28 +80,30 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
-      <el-form :model="formData" label-position="right" label-width="120px">
-        <el-form-item label="所属项目:">
-          <el-input v-model="formData.project" clearable placeholder="请输入" />
+      <el-form :model="formData" label-position="right" label-width="120px" ref="searchInfo" :rules="rules">
+        <el-form-item label="所属项目" prop="project">
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="楼栋名称:">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+        <el-form-item label="楼栋名称" prop="name">
+          <el-input v-model.trim="formData.name" @click="getBuildingList" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="楼栋状态:">
+        <el-form-item label="楼栋状态" prop="buildState">
           <el-select v-model="formData.buildState" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in buildStateOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="建筑面积（㎡）:">
+        <el-form-item label="建筑面积（㎡）" prop="coveredArea">
           <el-input-number v-model="formData.coveredArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="经营面积（㎡）:">
+        <el-form-item label="经营面积（㎡）" prop="businessArea">
           <el-input-number v-model="formData.businessArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="楼上楼层数:">
+        <el-form-item label="楼上楼层数" prop="upstairs">
           <el-input v-model.number="formData.upstairs" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="地下楼层数:">
+        <el-form-item label="地下楼层数" prop="downstair">
           <el-input v-model.number="formData.downstair" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -122,6 +126,7 @@ import {
   findBuildingInformation,
   getBuildingInformationList
 } from '@/api/buildingInformation' //  此处请自行替换地址
+import { getProjectInformationList } from '@/api/projectInformation'
 import infoList from '@/mixins/infoList'
 export default {
   name: 'BuildingInformation',
@@ -133,7 +138,11 @@ export default {
       type: '',
       deleteVisible: false,
       multipleSelection: [],
+      projectOptions: [],
       buildStateOptions: [],
+      buildingList: [],
+      projectOptionsInterval: '',
+      buildingListInterval: '',
       formData: {
         project: '',
         name: '',
@@ -142,18 +151,49 @@ export default {
         businessArea: 0,
         upstairs: 0,
         downstair: 0,
-      }
+      },
+      rules: {
+        project:              [{ required: true, message: '请输入所属项目',  trigger: 'blur' }],
+        name:                 [{ required: true, message: '请输入楼栋名称',  trigger: 'blur' }],
+        buildState:           [{ required: true, message: '请输入楼栋状态',  trigger: 'blur' }],
+        coveredArea:          [{ required: true, message: '请输入建筑面积（㎡)',  trigger: 'blur' }],
+        businessArea:         [{ required: true, message: '请输入经营面积（㎡）',  trigger: 'blur' }],
+        upstairs:             [{ required: true, message: '请输入楼上楼层数',  trigger: 'blur' }],
+        downstair:            [{ required: true, message: '请输入地下楼层数',  trigger: 'blur' }],
+      },
     }
   },
   async created() {
     await this.getTableData()
     await this.getDict('buildState')
+    await this.setProjectOptions()
+    await this.getBuildingList()
   },
   methods: {
-  onReset() {
-    this.searchInfo = {}
-  },
-  // 条件搜索前端看此方法
+    async setProjectOptions() {
+      this.projectOptions = []
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.name,
+          value: item.name
+        }
+        this.projectOptions.push(option)
+      })
+    },
+    async getBuildingList() {
+      this.buildingList = []
+      const res = await getBuildingInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        if(item.project === this.formData.project){
+          this.buildingList.push(item.name)
+        }
+      })
+    },
+    onReset() {
+      this.searchInfo = {}
+    },
+    // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10
@@ -231,25 +271,65 @@ export default {
       }
     },
     async enterDialog() {
-      let res
-      switch (this.type) {
-        case 'create':
-          res = await createBuildingInformation(this.formData)
+      let flag = 0
+      for(let i = 0 ; i < this.buildingList.length; i++){
+        if(this.formData.name === this.buildingList[i]){
+          flag = 1
           break
-        case 'update':
-          res = await updateBuildingInformation(this.formData)
-          break
-        default:
-          res = await createBuildingInformation(this.formData)
-          break
+        }
       }
-      if (res.code === 0) {
-        this.$message({
-          type: 'success',
-          message: '创建/更改成功'
-        })
-        this.closeDialog()
-        this.getTableData()
+      if(this.formData.project != "" &&  this.formData.name != "" && this.formData.buildState != undefined && this.formData.upstairs != undefined 
+        && this.formData.downstair != undefined && flag != 1){
+        let res
+        switch (this.type) {
+          case 'create':
+            res = await createBuildingInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '创建成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+            break
+          case 'update':
+            res = await updateBuildingInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '更改成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+            break
+          default:
+            res = await createBuildingInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '创建成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+            break
+        }
+      }
+      else{
+        if (flag === 1){
+          this.$message({
+          type: 'warning',
+          message: '楼栋名称重复'
+          })
+        }
+        else{
+          this.$message({
+          type: 'warning',
+          message: '请填写必填项'
+          })
+        }
       }
     },
     openDialog() {

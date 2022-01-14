@@ -1,4 +1,4 @@
-// <template>
+<!-- // <template> -->
   <!-- <div class="bottom-info">
     <div>
       <span>Powered by</span>
@@ -12,7 +12,7 @@
       </span>
     </div>
   </div> -->
-// </template>
+<!-- // </template> -->
 
 <script>
 // 此文件内容为版权信息，如需改动，请联系wx:shouzi_1994购买授权 未授权状态只需保留此代码 不影响任何正常使用
