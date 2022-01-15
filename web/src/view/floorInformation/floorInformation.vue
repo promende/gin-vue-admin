@@ -28,7 +28,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -83,14 +83,14 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
-      <el-form :model="formData" label-position="right" label-width="120px" ref="searchInfo" :rules="rules">
+      <el-form :model="formData" label-position="right" label-width="120px" ref="floorForm" :rules="rules">
         <el-form-item label="所属项目" prop="project">
           <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getSearchBuildingOptions();setFormDataBuild()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋" prop="build">
-          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions" @visible-change="getFormDataBuildingOptions">
+          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions();getFloorList()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in formDataBuildingOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -139,12 +139,14 @@ export default {
       listApi: getFloorInformationList,
       dialogFormVisible: false,
       type: '',
+      tFloor: '',
       deleteVisible: false,
       searchBuildingOptions: [],
       formDataBuildingOptions: [],
       multipleSelection: [],
       buildStateOptions: [],
       projectOptions: [],
+      floorList: [],
       formData: {
         project: '',
         build: '',
@@ -170,6 +172,16 @@ export default {
     await this.getSearchBuildingOptions()
   },
   methods: {
+    async getFloorList() {
+      this.floorList = []
+      const res = await getFloorInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        if(item.project === this.formData.project && item.build === this.formData.build){
+          this.floorList.push(item.name)
+        }
+      })
+      console.log(this.floorList)
+    },
     setFormDataBuild() {
       this.formData.build = ''
     },
@@ -296,8 +308,10 @@ export default {
         this.formData = res.data.refloorInformation
         this.dialogFormVisible = true
       }
+      this.tFloor = this.formData.name
     },
     closeDialog() {
+      this.$refs.floorForm.resetFields()
       this.dialogFormVisible = false
       this.formData = {
         project: '',
@@ -322,25 +336,73 @@ export default {
       }
     },
     async enterDialog() {
-      let res
-      switch (this.type) {
-        case 'create':
-          res = await createFloorInformation(this.formData)
-          break
-        case 'update':
-          res = await updateFloorInformation(this.formData)
-          break
-        default:
-          res = await createFloorInformation(this.formData)
-          break
+      if(this.type === 'update') {
+        if(this.formData.project != undefined && this.formData.build != undefined && this.formData.name != "" && 
+        this.formData.floorState != undefined && this.formData.coveredArea != undefined && this.formData.operatingArea != undefined) {
+          let index = -1
+          for(let i = 0 ; i < this.floorList.length; i++){
+            if(this.formData.name === this.floorList[i]){
+              index = i
+              break
+            }
+          }
+          if(index != -1 && this.formData.name===this.tFloor || index === -1){
+            let res
+            res = await updateFloorInformation(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '更改成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '楼层名称重复'
+            })
+          }
+        }
       }
-      if (res.code === 0) {
-        this.$message({
-          type: 'success',
-          message: '创建/更改成功'
-        })
-        this.closeDialog()
-        this.getTableData()
+      else {
+        let flag = 0
+        for(let i = 0 ; i < this.floorList.length; i++){
+            if(this.formData.name === this.floorList[i]){
+            flag = 1
+            break
+          }
+        }
+        if(this.formData.project != undefined && this.formData.build != undefined && this.formData.name != "" && 
+        this.formData.floorState != undefined && this.formData.coveredArea != undefined && this.formData.operatingArea != undefined 
+        && flag != 1){
+          let res
+          res = await createFloorInformation(this.formData)
+          
+          if (res.code === 0) {
+            this.$message({
+              type: 'success',
+              message: '创建成功'
+            })
+            this.closeDialog()
+            this.getTableData()
+          }
+        }
+        else{
+          if (flag === 1){
+            this.$message({
+            type: 'warning',
+            message: '楼层名称重复'
+            })
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+            })
+          }
+        }
       }
     },
     openDialog() {

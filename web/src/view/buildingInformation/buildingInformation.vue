@@ -82,7 +82,7 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增楼栋">
-      <el-form :model="formData" label-position="right" label-width="120px" ref="searchInfo" :rules="rules">
+      <el-form :model="formData" label-position="right" label-width="120px" ref="buildingForm" :rules="rules">
         <el-form-item label="所属项目" prop="project">
           <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getBuildingList">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
@@ -285,6 +285,7 @@ export default {
       this.tBuilding = this.formData.name
     },
     closeDialog() {
+      this.$refs.buildingForm.resetFields()
       this.dialogFormVisible = false
       this.formData = {
         project: '',
@@ -358,15 +359,15 @@ export default {
         if(this.formData.project != undefined &&  this.formData.name != "" && this.formData.buildState != undefined && this.formData.upstairs != undefined 
           && this.formData.downstair != undefined && flag != 1){
           let res
-            res = await createBuildingInformation(this.formData)
-            if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                message: '创建成功'
-              })
-              this.closeDialog()
-              this.getTableData()
-            }
+          res = await createBuildingInformation(this.formData)
+          if (res.code === 0) {
+            this.$message({
+              type: 'success',
+              message: '创建成功'
+            })
+            this.closeDialog()
+            this.getTableData()
+          }
         }
         else{
           if (flag === 1){
