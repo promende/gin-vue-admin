@@ -3,12 +3,14 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchBuild()" @visible-change="getSearchBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋">
-          <el-input v-model="searchInfo.build" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions" @visible-change="getSearchBuildingOptions">
+            <el-option v-for="(item,key) in searchBuildingOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="楼层名称">
           <el-input v-model="searchInfo.name" placeholder="搜索条件" />
@@ -56,8 +58,8 @@
             {{ filterDict(scope.row.floorState,"buildState") }}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="建筑面积（㎡)" prop="coveredArea" width="120" />
-        <el-table-column align="left" label="经营面积（㎡）" prop="operatingArea" width="120" />
+        <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" :formatter="rounding"/>
+        <el-table-column align="right" label="经营面积（㎡）" prop="operatingArea" width="120" :formatter="rounding"/>
         <el-table-column align="left" label="日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
@@ -81,27 +83,29 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
-      <el-form :model="formData" label-position="right" label-width="120px">
-        <el-form-item label="所属项目:">
-          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+      <el-form :model="formData" label-position="right" label-width="120px" ref="searchInfo" :rules="rules">
+        <el-form-item label="所属项目" prop="project">
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getSearchBuildingOptions();setFormDataBuild()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="所属楼栋:">
-          <el-input v-model="formData.build" clearable placeholder="请输入" />
+        <el-form-item label="所属楼栋" prop="build">
+          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions" @visible-change="getFormDataBuildingOptions">
+            <el-option v-for="(item,key) in formDataBuildingOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="楼层名称:">
+        <el-form-item label="楼层名称" prop="name">
           <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="楼层状态:">
+        <el-form-item label="楼层状态" prop="floorState">
           <el-select v-model="formData.floorState" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in buildStateOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="建筑面积（㎡）:">
+        <el-form-item label="建筑面积（㎡）" prop="coveredArea">
           <el-input-number v-model="formData.coveredArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="经营面积（㎡）:">
+        <el-form-item label="经营面积（㎡）" prop="operatingArea">
           <el-input-number v-model="formData.operatingArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
       </el-form>
@@ -125,6 +129,7 @@ import {
   getFloorInformationList
 } from '@/api/floorInformation' //  此处请自行替换地址
 import { getProjectInformationList } from '@/api/projectInformation'
+import { getBuildingInformationList } from '@/api/buildingInformation' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
 export default {
   name: 'FloorInformation',
@@ -135,6 +140,8 @@ export default {
       dialogFormVisible: false,
       type: '',
       deleteVisible: false,
+      searchBuildingOptions: [],
+      formDataBuildingOptions: [],
       multipleSelection: [],
       buildStateOptions: [],
       projectOptions: [],
@@ -145,6 +152,14 @@ export default {
         floorState: undefined,
         coveredArea: 0,
         operatingArea: 0,
+      },
+      rules: {
+        project:                   [{ required: true, message: '请输入所属项目',  trigger: 'blur' }],
+        build:                     [{ required: true, message: '请输入所属楼栋',  trigger: 'blur' }],
+        name:                      [{ required: true, message: '请输入楼层名称',  trigger: 'blur' }],
+        floorState:                [{ required: true, message: '请输入楼层状态',  trigger: 'blur' }],
+        coveredArea:               [{ required: true, message: '请输入建筑面积（㎡)',  trigger: 'blur' }],
+        operatingArea:             [{ required: true, message: '请输入经营面积（㎡）',  trigger: 'blur' }],
       }
     }
   },
@@ -152,8 +167,70 @@ export default {
     await this.getTableData()
     await this.getDict('buildState')
     await this.setProjectOptions()
+    await this.getSearchBuildingOptions()
   },
   methods: {
+    setFormDataBuild() {
+      this.formData.build = ''
+    },
+    setSearchBuild() {
+      this.searchInfo.build = ''
+    },
+    rounding(row, column) {
+      return parseFloat(row[column.property]).toFixed(2)
+    },
+    async getSearchBuildingOptions(){
+      let list = []
+      const res = await getBuildingInformationList({ page: 1, pageSize: 999 })
+      if(this.searchInfo.project === undefined || this.searchInfo.project === '') {
+        res.data.list && res.data.list.forEach(item => {
+          list.push(item.name)
+        })
+      }
+      else {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.project === this.searchInfo.project){
+            list.push(item.name)
+          }
+        })
+      }
+      let newArr = list.filter((item, index) => list.indexOf(item) === index); 
+
+      this.searchBuildingOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.searchBuildingOptions.push(option)
+      })
+    },
+    async getFormDataBuildingOptions(){
+      let list = []
+      const res = await getBuildingInformationList({ page: 1, pageSize: 999 })
+      if(this.formData.project === undefined || this.formData.project === '') {
+        res.data.list && res.data.list.forEach(item => {
+          list.push(item.name)
+        })
+      }
+      else {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.project === this.formData.project){
+            list.push(item.name)
+          }
+        })
+      }
+      let newArr = list.filter((item, index) => list.indexOf(item) === index); 
+
+      this.formDataBuildingOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.formDataBuildingOptions.push(option)
+      })
+    },
     async setProjectOptions() {
       this.projectOptions = []
       const res = await getProjectInformationList({ page: 1, pageSize: 999 })

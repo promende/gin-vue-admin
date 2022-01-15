@@ -3,12 +3,14 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchName()" @visible-change="setProjectOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="楼栋名称">
-          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions" @visible-change="getSearchBuildingOptions">
+            <el-option v-for="(item,key) in searchBuildingOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="楼栋状态">
           <el-select v-model="searchInfo.buildState" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
@@ -53,10 +55,10 @@
             {{ filterDict(scope.row.buildState,"buildState") }}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="建筑面积（㎡)" prop="coveredArea" width="120" />
-        <el-table-column align="left" label="经营面积（㎡）" prop="businessArea" width="120" />
-        <el-table-column align="left" label="楼上楼层数" prop="upstairs" width="120" />
-        <el-table-column align="left" label="地下楼层数" prop="downstair" width="120" />
+        <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" :formatter="rounding"/>
+        <el-table-column align="right" label="经营面积（㎡）" prop="businessArea" width="120" :formatter="rounding"/>
+        <el-table-column align="right" label="楼上楼层数" prop="upstairs" width="120" />
+        <el-table-column align="right" label="地下楼层数" prop="downstair" width="120" />
         <el-table-column align="left" label="日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
@@ -79,15 +81,15 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增楼栋">
       <el-form :model="formData" label-position="right" label-width="120px" ref="searchInfo" :rules="rules">
         <el-form-item label="所属项目" prop="project">
-          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getBuildingList">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="楼栋名称" prop="name">
-          <el-input v-model.trim="formData.name" @click="getBuildingList" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.name" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="楼栋状态" prop="buildState">
           <el-select v-model="formData.buildState" placeholder="请选择" style="width:100%" clearable>
@@ -136,11 +138,13 @@ export default {
       listApi: getBuildingInformationList,
       dialogFormVisible: false,
       type: '',
+      tBuilding: '',
       deleteVisible: false,
       multipleSelection: [],
       projectOptions: [],
       buildStateOptions: [],
       buildingList: [],
+      searchBuildingOptions: [],
       projectOptionsInterval: '',
       buildingListInterval: '',
       formData: {
@@ -168,8 +172,12 @@ export default {
     await this.getDict('buildState')
     await this.setProjectOptions()
     await this.getBuildingList()
+    await this.getSearchBuildingOptions()
   },
   methods: {
+    setSearchName(){
+      this.searchInfo.name = ''
+    },
     async setProjectOptions() {
       this.projectOptions = []
       const res = await getProjectInformationList({ page: 1, pageSize: 999 })
@@ -181,6 +189,33 @@ export default {
         this.projectOptions.push(option)
       })
     },
+    async getSearchBuildingOptions(){
+      let searchBuildingList = []
+      const res = await getBuildingInformationList({ page: 1, pageSize: 999 })
+      if(this.searchInfo.project === undefined || this.searchInfo.project === '') {
+        res.data.list && res.data.list.forEach(item => {
+          searchBuildingList.push(item.name)
+        })
+      }
+      else {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.project === this.searchInfo.project){
+            searchBuildingList.push(item.name)
+          }
+        })
+      }
+      let newArr = searchBuildingList.filter((item, index) => searchBuildingList.indexOf(item) === index);  
+      searchBuildingList = newArr
+
+      this.searchBuildingOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.searchBuildingOptions.push(option)
+      })
+    },
     async getBuildingList() {
       this.buildingList = []
       const res = await getBuildingInformationList({ page: 1, pageSize: 999 })
@@ -189,6 +224,9 @@ export default {
           this.buildingList.push(item.name)
         }
       })
+    },
+    rounding(row, column) {
+      return parseFloat(row[column.property]).toFixed(2)
     },
     onReset() {
       this.searchInfo = {}
@@ -244,6 +282,7 @@ export default {
         this.formData = res.data.rebuildingInformation
         this.dialogFormVisible = true
       }
+      this.tBuilding = this.formData.name
     },
     closeDialog() {
       this.dialogFormVisible = false
@@ -271,29 +310,18 @@ export default {
       }
     },
     async enterDialog() {
-      let flag = 0
-      for(let i = 0 ; i < this.buildingList.length; i++){
-        if(this.formData.name === this.buildingList[i]){
-          flag = 1
-          break
-        }
-      }
-      if(this.formData.project != "" &&  this.formData.name != "" && this.formData.buildState != undefined && this.formData.upstairs != undefined 
-        && this.formData.downstair != undefined && flag != 1){
-        let res
-        switch (this.type) {
-          case 'create':
-            res = await createBuildingInformation(this.formData)
-            if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                message: '创建成功'
-              })
-              this.closeDialog()
-              this.getTableData()
+      if(this.type === 'update') {
+        if(this.formData.project != undefined &&  this.formData.name != "" && this.formData.buildState != undefined 
+        && this.formData.upstairs != undefined && this.formData.downstair != undefined) {
+          let index = -1
+          for(let i = 0 ; i < this.buildingList.length; i++){
+            if(this.formData.name === this.buildingList[i]){
+              index = i
+              break
             }
-            break
-          case 'update':
+          }
+          if(index != -1 && this.formData.name===this.tBuilding || index === -1){
+            let res
             res = await updateBuildingInformation(this.formData)
             if (res.code === 0) {
               this.$message({
@@ -302,9 +330,34 @@ export default {
               })
               this.closeDialog()
               this.getTableData()
+              this.getSearchBuildingOptions()
             }
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '楼栋名称重复'
+            })
+          }
+        }
+        else{
+          this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+            })
+        }
+      }
+      else {
+        let flag = 0
+        for(let i = 0 ; i < this.buildingList.length; i++){
+          if(this.formData.name === this.buildingList[i]){
+            flag = 1
             break
-          default:
+          }
+        }
+        if(this.formData.project != undefined &&  this.formData.name != "" && this.formData.buildState != undefined && this.formData.upstairs != undefined 
+          && this.formData.downstair != undefined && flag != 1){
+          let res
             res = await createBuildingInformation(this.formData)
             if (res.code === 0) {
               this.$message({
@@ -314,23 +367,23 @@ export default {
               this.closeDialog()
               this.getTableData()
             }
-            break
-        }
-      }
-      else{
-        if (flag === 1){
-          this.$message({
-          type: 'warning',
-          message: '楼栋名称重复'
-          })
         }
         else{
-          this.$message({
-          type: 'warning',
-          message: '请填写必填项'
-          })
+          if (flag === 1){
+            this.$message({
+            type: 'warning',
+            message: '楼栋名称重复'
+            })
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+            })
+          }
         }
       }
+      
     },
     openDialog() {
       this.type = 'create'
