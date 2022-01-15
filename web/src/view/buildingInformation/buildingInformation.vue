@@ -205,7 +205,6 @@ export default {
         })
       }
       let newArr = searchBuildingList.filter((item, index) => searchBuildingList.indexOf(item) === index);  
-      searchBuildingList = newArr
 
       this.searchBuildingOptions = []
       newArr && newArr.forEach(item => {

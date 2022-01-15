@@ -3,17 +3,19 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchBuild()" @visible-change="getSearchBuildingOptions">
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchBuild();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋">
-          <el-select v-model="searchInfo.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions" @visible-change="getSearchBuildingOptions">
+          <el-select v-model="searchInfo.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchFloor();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions">
             <el-option v-for="(item,key) in searchBuildingOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="楼层名称">
-          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions">
+            <el-option v-for="(item,key) in searchFloorOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="楼层状态">
           <el-select v-model="searchInfo.floorState" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
@@ -28,7 +30,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog();">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();getFloorList()">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -85,12 +87,12 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="120px" ref="floorForm" :rules="rules">
         <el-form-item label="所属项目" prop="project">
-          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getSearchBuildingOptions();setFormDataBuild()" @visible-change="getFormDataBuildingOptions">
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getSearchBuildingOptions();setFormDataBuild();getFloorList()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋" prop="build">
-          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions();getFloorList()" @visible-change="getFormDataBuildingOptions">
+          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions();getFloorList();getFloorList()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in formDataBuildingOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -146,6 +148,7 @@ export default {
       multipleSelection: [],
       buildStateOptions: [],
       projectOptions: [],
+      searchFloorOptions: [],
       floorList: [],
       formData: {
         project: '',
@@ -170,8 +173,46 @@ export default {
     await this.getDict('buildState')
     await this.setProjectOptions()
     await this.getSearchBuildingOptions()
+    await this.getSearchFloorOptions()
   },
   methods: {
+    setSearchFloor() {
+      this.searchInfo.name = ''
+    },
+    async getSearchFloorOptions() {
+      let searchFloorList = []
+      const res = await getFloorInformationList({ page: 1, pageSize: 999 })
+
+      if(this.searchInfo.project === undefined || this.searchInfo.project === '') {
+        res.data.list && res.data.list.forEach(item => {
+          searchFloorList.push(item.name)
+        })
+      }
+      else {
+        if(this.searchInfo.build === undefined || this.searchInfo.build === ''){
+          res.data.list && res.data.list.forEach(item => {
+            if(item.project === this.searchInfo.project)
+              searchFloorList.push(item.name)
+          })
+        }
+        else{
+          res.data.list && res.data.list.forEach(item => {
+            if(item.project === this.searchInfo.project && item.build === this.searchInfo.build)
+              searchFloorList.push(item.name)
+          })
+        }
+      }
+
+      let newArr = searchFloorList.filter((item, index) => searchFloorList.indexOf(item) === index)
+      this.searchFloorOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.searchFloorOptions.push(option)
+      })
+    },
     async getFloorList() {
       this.floorList = []
       const res = await getFloorInformationList({ page: 1, pageSize: 999 })
@@ -337,6 +378,7 @@ export default {
     },
     async enterDialog() {
       if(this.type === 'update') {
+        await this.getFloorList()
         if(this.formData.project != undefined && this.formData.build != undefined && this.formData.name != "" && 
         this.formData.floorState != undefined && this.formData.coveredArea != undefined && this.formData.operatingArea != undefined) {
           let index = -1
