@@ -3,7 +3,7 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="项目名称">
-          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" clearable filterable>
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" clearable filterable >
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -106,7 +106,7 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增项目">
       <el-form ref="projectForm" :model="formData" label-position="right" label-width="120px" :rules="rules">
-        <el-form-item label="项目名称" prop="name">
+        <el-form-item  label="项目名称" prop="name" >
           <el-input v-model.trim="formData.name" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="项目简称" prop="abbreviation">
@@ -145,7 +145,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog();setProjectOptions()">确 定</el-button>
         </div>
       </template>
     </el-dialog>
@@ -179,6 +179,7 @@ export default {
       dialogFormVisible: false,
       type: '',
       deleteVisible: false,
+      tProject: '',
       ProjectList: [],
       principalOptions: [],
       multipleSelection: [],
@@ -234,7 +235,7 @@ export default {
     async setProjectOptions() {
       this.projectOptions = []
       const res = await getProjectInformationList({ page: 1, pageSize: 999 })
-      this.getProjectOptions(res.data.list, this.projectOptions)
+      await this.getProjectOptions(res.data.list, this.projectOptions)
     },
     getProjectOptions(data, options) {
       data && data.forEach(item => {
@@ -313,6 +314,7 @@ export default {
         this.formData = res.data.reproject
         this.dialogFormVisible = true
       }
+      this.tProject = res.data.reproject.name
     },
     closeDialog() {
       this.$refs.projectForm.resetFields()
@@ -343,63 +345,84 @@ export default {
       }
     },
     async enterDialog() {
-      let flag = 0
-      for(let i = 0 ; i < this.ProjectList.length; i++){
-        if(this.formData.name === this.ProjectList[i]){
-          flag = 1
-          break
-        }
-      }
-      if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
+      await this.setProjectList()
+      // console.log(this.tProject)
+      if(this.type === 'update'){
+        if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
         this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
-        this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){
-        let res
-        switch (this.type) {
-          case 'create':
-            res = await createProjectInformation(this.formData)
-            if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                message: '创建成功'
-              })
+        this.formData.propertyManagementType != undefined && this.formData.principal != ''){
+          let index = -1
+          for(let i = 0 ; i < this.ProjectList.length; i++){
+            if(this.formData.name === this.ProjectList[i]){
+              index = i
+              break
             }
-            break
-          case 'update':
+          }
+          // console.log(index)
+          if(index != -1 && this.formData.name===this.tProject || index === -1){
+            let res
             res = await updateProjectInformation(this.formData)
             if (res.code === 0) {
               this.$message({
                 type: 'success',
                 message: '更改成功'
               })
+              this.closeDialog()
+              this.getTableData()
+              this.setProjectOptions()
             }
-            break
-          default:
-            res = await createProjectInformation(this.formData)
-            if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                message: '创建成功'
-              })
-            }
-            break
-        }
-        if (res.code === 0) {
-          this.closeDialog()
-          this.getTableData()
-        }
-      }
-      else{
-        if (flag === 1){
-          this.$message({
-          type: 'warning',
-          message: '项目名称重复'
-          })
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '项目名称重复'
+            })
+          }
         }
         else{
           this.$message({
-          type: 'warning',
-          message: '请填写必填项'
+            type: 'warning',
+            message: '请填写必填项'
           })
+        }
+      }
+      else{
+        let flag = 0
+        for(let i = 0 ; i < this.ProjectList.length; i++){
+          if(this.formData.name === this.ProjectList[i]){
+            flag = 1
+            break
+          }
+        }
+
+        if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
+          this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
+          this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){
+          let res
+          res = await createProjectInformation(this.formData)
+          if (res.code === 0) {
+            this.$message({
+              type: 'success',
+              message: '创建成功'
+            })
+            this.closeDialog()
+            this.getTableData()
+            this.setProjectOptions()
+          }
+        }
+        else{
+          if (flag === 1){
+            this.$message({
+            type: 'warning',
+            message: '项目名称重复'
+            })
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+            })
+          }
         }
       }
     },
