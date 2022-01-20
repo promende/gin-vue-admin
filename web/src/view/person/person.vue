@@ -13,9 +13,9 @@
             </div>
             <div class="user-personality">
               <p v-if="!editFlag" class="nickName">{{ userInfo.nickName }}
-                <el-icon class="pointer" color="#66b1ff" @click="openEidt">
+                <!-- <el-icon class="pointer" color="#66b1ff" @click="openEidt">
                   <edit />
-                </el-icon>
+                </el-icon> -->
               </p>
               <p v-if="editFlag" class="nickName">
                 <el-input v-model="nickName" />
@@ -30,12 +30,12 @@
             </div>
             <div class="user-information">
               <ul>
-                <li>
+                <!-- <li>
                   <el-icon>
                     <user />
                   </el-icon>
                   {{ userInfo.nickName }}
-                </li>
+                </li> -->
                 <!-- <el-tooltip class="item" effect="light" content="北京反转极光科技有限公司-技术部-前端事业群" placement="top">
                   <li>
                     <el-icon>

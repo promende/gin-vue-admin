@@ -3,7 +3,7 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="项目名称">
-          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" clearable filterable >
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" clearable filterable>
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -63,7 +63,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="项目名称" prop="name" width="120" />
         <el-table-column align="left" label="项目简称" prop="abbreviation" width="120" />
-        <el-table-column align="left" label="项目地址" prop="address" width="120" />
+        <el-table-column align="left" label="项目地址" prop="address" width="300" />
         <el-table-column align="left" label="营运状态" prop="operatingState" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.operatingState,"OperatingState") }}
@@ -137,7 +137,7 @@
           <el-input-number v-model="formData.operatingArea"  style="width:100%" :precision="2" clearable />
         </el-form-item>
         <el-form-item label="负责人" prop="principal">
-          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable filterable>
+          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable filterable @visible-change="setPrincipalOptions">
             <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -343,6 +343,7 @@ export default {
         }
         this.getTableData()
       }
+      this.setProjectOptions()
     },
     async enterDialog() {
       await this.setProjectList()
@@ -394,7 +395,6 @@ export default {
             break
           }
         }
-
         if(this.formData.name != '' &&  this.formData.abbreviation != '' && this.formData.address != '' && 
           this.formData.operatingState != undefined && this,this.formData.managementType != undefined &&
           this.formData.propertyManagementType != undefined && this.formData.principal != '' && flag != 1){

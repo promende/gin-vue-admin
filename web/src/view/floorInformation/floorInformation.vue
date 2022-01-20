@@ -3,7 +3,7 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="所属项目">
-          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchBuild();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions">
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();setSearchBuild();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions();setProjectOptions()">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -13,7 +13,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="楼层名称">
-          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions">
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getSearchBuildingOptions();getSearchFloorOptions()" @visible-change="getSearchBuildingOptions();getSearchFloorOptions()">
             <el-option v-for="(item,key) in searchFloorOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -30,7 +30,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog();getFloorList()">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();getFloorList();setProjectOptions()">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -62,7 +62,7 @@
         </el-table-column>
         <el-table-column align="right" label="建筑面积（㎡)" prop="coveredArea" width="120" :formatter="rounding"/>
         <el-table-column align="right" label="经营面积（㎡）" prop="operatingArea" width="120" :formatter="rounding"/>
-        <el-table-column align="left" label="日期" width="180" prop="date" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -87,17 +87,17 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="120px" ref="floorForm" :rules="rules">
         <el-form-item label="所属项目" prop="project">
-          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getSearchBuildingOptions();setFormDataBuild();getFloorList()" @visible-change="getFormDataBuildingOptions">
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable  @change="getFormDataBuildingOptions();setFormDataBuild();getFloorList()" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="所属楼栋" prop="build">
-          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions();getFloorList();getFloorList()" @visible-change="getFormDataBuildingOptions">
+          <el-select v-model="formData.build" placeholder="请选择" style="width:100%" default-first-option clearable filterable @change="getFormDataBuildingOptions();getFloorList();" @visible-change="getFormDataBuildingOptions">
             <el-option v-for="(item,key) in formDataBuildingOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="楼层名称" prop="name">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+          <el-input v-model.trim ="formData.name" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="楼层状态" prop="floorState">
           <el-select v-model="formData.floorState" placeholder="请选择" style="width:100%" clearable>
@@ -129,9 +129,9 @@ import {
   updateFloorInformation,
   findFloorInformation,
   getFloorInformationList
-} from '@/api/floorInformation' //  此处请自行替换地址
+} from '@/api/floorInformation'
 import { getProjectInformationList } from '@/api/projectInformation'
-import { getBuildingInformationList } from '@/api/buildingInformation' //  此处请自行替换地址
+import { getBuildingInformationList } from '@/api/buildingInformation' 
 import infoList from '@/mixins/infoList'
 export default {
   name: 'FloorInformation',
@@ -221,7 +221,6 @@ export default {
           this.floorList.push(item.name)
         }
       })
-      console.log(this.floorList)
     },
     setFormDataBuild() {
       this.formData.build = ''
@@ -377,8 +376,8 @@ export default {
       }
     },
     async enterDialog() {
+      await this.getFloorList()
       if(this.type === 'update') {
-        await this.getFloorList()
         if(this.formData.project != undefined && this.formData.build != undefined && this.formData.name != "" && 
         this.formData.floorState != undefined && this.formData.coveredArea != undefined && this.formData.operatingArea != undefined) {
           let index = -1

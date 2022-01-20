@@ -60,20 +60,14 @@ func (businessService *BusinessService)GetBusinessInfoList(info autoCodeReq.Busi
     if info.TelephoneNumber != "" {
         db = db.Where("telephone_number LIKE ?","%"+ info.TelephoneNumber+"%")
     }
-    if info.Company != "" {
-        db = db.Where("company LIKE ?","%"+ info.Company+"%")
-    }
-    if info.Duty != "" {
-        db = db.Where("duty LIKE ?","%"+ info.Duty+"%")
-    }
     if info.Source != nil {
         db = db.Where("source = ?",info.Source)
     }
-    if info.Project != "" {
-        db = db.Where("project LIKE ?","%"+ info.Project+"%")
+    if info.Project != nil {
+        db = db.Where("project = ?",info.Project)
     }
-    if info.Principal != "" {
-        db = db.Where("principal LIKE ?","%"+ info.Principal+"%")
+    if info.Principal != nil {
+        db = db.Where("principal = ?",info.Principal)
     }
 	err = db.Count(&total).Error
 	if err!=nil {

@@ -3,23 +3,32 @@
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
         <el-form-item label="姓名">
-          <el-input v-model="searchInfo.name" placeholder="支持模糊查找" />
+          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setNameOptions">
+            <el-option v-for="(item,key) in nameOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="电话号码">
-          <el-input v-model="searchInfo.telephoneNumber" placeholder="支持模糊查找" />
+          <el-select v-model="searchInfo.telephoneNumber" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setTelephoneNumberOptions">
+            <el-option v-for="(item,key) in telephoneNumberOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="商机来源:">
+        <el-form-item label="公司">
+          <el-select v-model="searchInfo.company" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCompanyOptions">
+            <el-option v-for="(item,key) in companyOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="商机来源">
           <el-select v-model="searchInfo.source" placeholder="请选择" style="width:100%" default-first-option clearable filterable >
             <el-option v-for="(item,key) in SourceOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="意向项目:">
-          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable>
+        <el-form-item label="意向项目">
+          <el-select v-model="searchInfo.project" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setProjectOptions">
             <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="负责人:">
-          <el-select v-model="searchInfo.principal" placeholder="请选择" style="width:100%" default-first-option clearable filterable>
+        <el-form-item label="负责人">
+          <el-select v-model="searchInfo.principal" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setPrincipalOptions">
             <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -28,7 +37,6 @@
           <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
         </el-form-item>
       </el-form>
-
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
@@ -49,30 +57,23 @@
         style="width: 100%"
         tooltip-effect="dark"
         :data="tableData"
-        :default-sort = "{prop: 'date', order: 'descending'}"
         row-key="ID"
+        :default-sort = "{prop: 'date', order: 'descending'}"
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        
         <el-table-column align="left" label="姓名" prop="name" width="120" />
         <el-table-column align="left" label="电话号码" prop="telephoneNumber" width="120" />
+        <el-table-column align="left" label="公司" prop="company" width="300" />
+        <el-table-column align="left" label="职务" prop="duty" width="150" />
         <el-table-column align="left" label="商机来源" prop="source" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.source,"Source") }}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="意向项目" prop="project" width="120">
-            <template #default="scope">
-            {{ filterDict(scope.row.project,"project") }}
-            </template>
-        </el-table-column>
-        <el-table-column align="left" label="负责人" prop="principal" width="120">
-            <template #default="scope">
-            {{ filterDict(scope.row.principal,"principal") }}
-            </template>
-        </el-table-column>
-        <el-table-column align="left" label="创建时间" width="180" prop="date" sortable>
+        <el-table-column align="left" label="意向项目" prop="project" width="120" />
+        <el-table-column align="left" label="负责人" prop="principal" width="120" />
+        <el-table-column align="left" label="创建日期" width="180" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -95,25 +96,31 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增商机">
-      <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="姓名:">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+      <el-form :model="formData" label-position="right" label-width="80px" ref="formData" :rules="rules">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model.trim="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="电话号码:">
-          <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
+        <el-form-item label="电话号码" prop="telephoneNumber">
+          <el-input v-model.trim="formData.telephoneNumber" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="商机来源:">
+        <el-form-item label="公司">
+          <el-input v-model="formData.company" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="职务">
+          <el-input v-model="formData.duty" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="商机来源" prop="source">
           <el-select v-model="formData.source" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in SourceOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="意向项目:">
-          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+        <el-form-item label="意向项目" prop="project">
+          <el-select v-model="formData.project" placeholder="请选择" style="width:100%" clearable @visible-change="setProjectOptions">
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="负责人:">
-          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable>
+        <el-form-item label="负责人" prop="principal">
+          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" clearable @visible-change="setPrincipalOptions">
             <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -138,6 +145,8 @@ import {
   getBusinessList
 } from '@/api/business' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
+import { getProjectInformationList } from '@/api/projectInformation'
+import { getUserList } from '@/api/user'
 export default {
   name: 'Business',
   mixins: [infoList],
@@ -151,26 +160,134 @@ export default {
       SourceOptions: [],
       projectOptions: [],
       principalOptions: [],
+      telephoneNumberOptions: [],
+      nameOptions: [],
+      companyOptions: [],
+      telephoneNumberList: [],
+      tTelephoneNumber: '',
       formData: {
         name: '',
         telephoneNumber: '',
+        company: '',
+        duty: '',
         source: undefined,
-        project: undefined,
-        principal: undefined,
+        project: '',
+        principal: '',
+      },
+      rules: {
+        name:                   [{ required: true, message: '请输入姓名',  trigger: 'blur' }],
+        telephoneNumber:        [{ required: true, message: '请输入电话号码',  trigger: 'blur' }],
+        source:                 [{ required: true, message: '请输入商机来源',  trigger: 'blur' }],
+        project:                [{ required: true, message: '请输入意向项目',  trigger: 'blur' }],
+        principal:              [{ required: true, message: '请输入负责人',  trigger: 'blur' }],
       }
     }
   },
   async created() {
     await this.getTableData()
     await this.getDict('Source')
-    await this.getDict('project')
-    await this.getDict('principal')
   },
   methods: {
-  onReset() {
-    this.searchInfo = {}
-  },
-  // 条件搜索前端看此方法
+    async setCompanyOptions() {
+      let list = []
+      const res = await getBusinessList({ page: 1, pageSize: 999 })
+      if(this.searchInfo.company === undefined || this.searchInfo.company === '') {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.company != '')
+            list.push(item.company)
+        })
+      }
+      else {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.company === this.searchInfo.company){
+            if(item.company != '')
+              list.push(item.company)          
+          }
+        })
+      }
+      let newArr = list.filter((item, index) => list.indexOf(item) === index); 
+
+      this.companyOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.companyOptions.push(option)
+      })
+    },
+    async setNameOptions() {
+      let list = []
+      const res = await getBusinessList({ page: 1, pageSize: 999 })
+      if(this.searchInfo.name === undefined || this.searchInfo.name === '') {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.name != '')
+            list.push(item.name)
+        })
+      }
+      else {
+        res.data.list && res.data.list.forEach(item => {
+          if(item.name === this.searchInfo.name){
+            if(item.name != '')
+              list.push(item.name)          
+          }
+        })
+      }
+      let newArr = list.filter((item, index) => list.indexOf(item) === index); 
+
+      this.nameOptions = []
+      newArr && newArr.forEach(item => {
+        const option ={
+          label: item,
+          value: item
+        }
+        this.nameOptions.push(option)
+      })
+    },
+    async setTelephoneNumberOptions(){
+      this.telephoneNumberOptions = []
+      const res = await getBusinessList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.telephoneNumber,
+          value: item.telephoneNumber
+        }
+        this.telephoneNumberOptions.push(option)
+      })
+    },
+    async setTelephoneNumberList(){
+      this.telephoneNumberList = []
+      const res = await getBusinessList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        this.telephoneNumberList.push(item.telephoneNumber)
+      })
+    },
+    async setPrincipalOptions() {
+      this.principalOptions = []
+      const res = await getUserList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.nickName,
+          value: item.nickName
+        }
+        this.principalOptions.push(option)
+      })
+    },
+    async setProjectOptions() {
+      this.projectOptions = []
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.name,
+          value: item.name
+        }
+        this.projectOptions.push(option)
+      })
+    },
+    onReset() {
+      this.searchInfo = {}
+    },
+    // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10
@@ -221,15 +338,19 @@ export default {
         this.formData = res.data.rebusiness
         this.dialogFormVisible = true
       }
+      this.tTelephoneNumber = this.formData.telephoneNumber
     },
     closeDialog() {
+      this.$refs.formData.resetFields()
       this.dialogFormVisible = false
       this.formData = {
         name: '',
         telephoneNumber: '',
+        company: '',
+        duty: '',
         source: undefined,
-        project: undefined,
-        principal: undefined,
+        project: '',
+        principal: '',
       }
     },
     async deleteBusiness(row) {
@@ -246,25 +367,72 @@ export default {
       }
     },
     async enterDialog() {
-      let res
-      switch (this.type) {
-        case 'create':
-          res = await createBusiness(this.formData)
-          break
-        case 'update':
-          res = await updateBusiness(this.formData)
-          break
-        default:
-          res = await createBusiness(this.formData)
-          break
+      await this.setTelephoneNumberList()
+      if(this.type === 'update'){
+        if(this.formData.name != "" && this.formData.telephoneNumber != "" && this.formData.source != undefined 
+        && this.formData.project != undefined && this.formData.principal != undefined ) {
+          let index = -1
+          for(let i = 0 ; i < this.telephoneNumberList.length; i++){
+            if(this.formData.telephoneNumber === this.telephoneNumberList[i]){
+              index = i
+              break
+            }
+          }
+          if(index != -1 && this.formData.telephoneNumber===this.tTelephoneNumber || index === -1){
+            let res
+            res = await updateBusiness(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '更改成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '电话号码重复'
+            })
+          }
+        }
       }
-      if (res.code === 0) {
-        this.$message({
-          type: 'success',
-          message: '创建/更改成功'
-        })
-        this.closeDialog()
-        this.getTableData()
+      else{
+        let flag = 0
+        for(let i = 0 ; i < this.telephoneNumberList.length; i++){
+            if(this.formData.telephoneNumber === this.telephoneNumberList[i]){
+            flag = 1
+            break
+          }
+        }
+        if(this.formData.name != "" && this.formData.telephoneNumber != "" && this.formData.source != undefined 
+        && this.formData.project != undefined && this.formData.principal != undefined && flag!= 1) {
+          let res
+          res = await createBusiness(this.formData)
+          if (res.code === 0) {
+            this.$message({
+              type: 'success',
+              message: '创建成功'
+            })
+            this.closeDialog()
+            this.getTableData()
+          }
+        }
+        else{
+          if (flag === 1){
+            this.$message({
+            type: 'warning',
+            message: '电话号码重复'
+            })
+          }
+          else{
+            this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+            })
+          }
+        }
       }
     },
     openDialog() {

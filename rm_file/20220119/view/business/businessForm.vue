@@ -8,22 +8,20 @@
         <el-form-item label="电话号码:">
           <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="公司:">
-          <el-input v-model="formData.company" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="职务:">
-          <el-input v-model="formData.duty" clearable placeholder="请输入" />
-        </el-form-item>
         <el-form-item label="商机来源:">
           <el-select v-model="formData.source" placeholder="请选择" clearable>
             <el-option v-for="(item,key) in SourceOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="意向项目:">
-          <el-input v-model="formData.project" clearable placeholder="请输入" />
+          <el-select v-model="formData.project" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in projectOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="负责人:">
-          <el-input v-model="formData.principal" clearable placeholder="请输入" />
+          <el-select v-model="formData.principal" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" @click="save">保存</el-button>
@@ -47,15 +45,15 @@ export default {
   data() {
     return {
       type: '',
+      principalOptions: [],
       SourceOptions: [],
+      projectOptions: [],
       formData: {
         name: '',
         telephoneNumber: '',
-        company: '',
-        duty: '',
         source: undefined,
-        project: '',
-        principal: '',
+        project: undefined,
+        principal: undefined,
       }
     }
   },
@@ -70,7 +68,9 @@ export default {
     } else {
       this.type = 'create'
     }
+    await this.getDict('principal')
     await this.getDict('Source')
+    await this.getDict('project')
   },
   methods: {
     async save() {

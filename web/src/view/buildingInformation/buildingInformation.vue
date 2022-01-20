@@ -59,7 +59,7 @@
         <el-table-column align="right" label="经营面积（㎡）" prop="businessArea" width="120" :formatter="rounding"/>
         <el-table-column align="right" label="楼上楼层数" prop="upstairs" width="120" />
         <el-table-column align="right" label="地下楼层数" prop="downstair" width="120" />
-        <el-table-column align="left" label="日期" width="180" prop="date" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">

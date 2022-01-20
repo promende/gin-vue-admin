@@ -8,12 +8,6 @@
         <el-form-item label="电话号码:">
           <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="公司:">
-          <el-input v-model="formData.company" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="职务:">
-          <el-input v-model="formData.duty" clearable placeholder="请输入" />
-        </el-form-item>
         <el-form-item label="商机来源:">
           <el-select v-model="formData.source" placeholder="请选择" clearable>
             <el-option v-for="(item,key) in SourceOptions" :key="key" :label="item.label" :value="item.value" />
@@ -51,8 +45,6 @@ export default {
       formData: {
         name: '',
         telephoneNumber: '',
-        company: '',
-        duty: '',
         source: undefined,
         project: '',
         principal: '',
