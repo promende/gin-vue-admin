@@ -2,7 +2,7 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="中介名称">
+        <el-form-item label="中介公司名称">
           <el-input v-model="searchInfo.name" placeholder="支持模糊查找" />
         </el-form-item>
         <el-form-item label="联系电话">
@@ -12,7 +12,9 @@
           <el-input v-model="searchInfo.code" placeholder="支持模糊查找" />
         </el-form-item>
         <el-form-item label="创建人">
-          <el-input v-model="searchInfo.creator" placeholder="支持模糊查找" />
+          <el-select v-model="searchInfo.creator" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setPrincipalOptions">
+            <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -46,12 +48,12 @@
         >
         <el-table-column type="selection" width="55" />
         
-        <el-table-column align="left" label="中介名称" prop="name" width="300" />
+        <el-table-column align="left" label="中介公司名称" prop="name" width="300" />
         <el-table-column align="left" label="联系电话" prop="telephoneNumber" width="120" />
         <el-table-column align="left" label="社会信用代码" prop="code" width="180" />
         <el-table-column align="left" label="创建人" prop="creator" width="120" />
         <el-table-column align="left" label="备注" prop="remark" width="540" />
-        <el-table-column align="left" label="日期" width="180" prop="date" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -73,21 +75,21 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
-      <el-form :model="formData" label-position="right" label-width="100px">
-        <el-form-item label="中介名称:">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增中介公司">
+      <el-form :model="formData" label-position="right" label-width="120px"  ref="formData" :rules="rules">
+        <el-form-item label="中介名称" prop="name">
           <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="联系电话:">
+        <el-form-item label="联系电话" prop="telephoneNumber">
           <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="社会信用代码:">
+        <el-form-item label="社会信用代码" prop="code">
           <el-input v-model="formData.code" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="创建人:">
+        <el-form-item label="创建人" prop="creator">
           <el-input v-model="formData.creator" clearable placeholder="请输入" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="备注:">
+        <el-form-item label="备注" prop="remark">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -111,6 +113,7 @@ import {
   getIntermediaryList
 } from '@/api/intermediary' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
+import { getUserList } from '@/api/user'
 import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'Intermediary',
@@ -122,12 +125,16 @@ export default {
       type: '',
       deleteVisible: false,
       multipleSelection: [],
+      principalOptions: [],
       formData: {
         name: '',
         telephoneNumber: '',
         code: '',
         creator: '',
         remark: '',
+      },
+      rules: {
+        name:                   [{ required: true, message: '请输入中介公司名称',  trigger: 'blur' }],
       },
       nameNull: 'false'
     }
@@ -139,9 +146,20 @@ export default {
     await this.getTableData()
   },
   methods: {
+    async setPrincipalOptions() {
+      this.principalOptions = []
+      const res = await getUserList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        const option = {
+          label: item.nickName,
+          value: item.nickName
+        }
+        this.principalOptions.push(option)
+      })
+    },
     ...mapActions('user', ['LoginOut', 'GetUserInfo']),
     setCreator(){
-      this.formData.creator = this.userInfo.userName
+      this.formData.creator = this.userInfo.nickName
     },
     checkPhone(){
       
@@ -202,6 +220,7 @@ export default {
       }
     },
     closeDialog() {
+      this.$refs.formData.resetFields()
       this.dialogFormVisible = false
       this.formData = {
         name: '',
