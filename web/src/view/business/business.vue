@@ -80,6 +80,7 @@
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateBusiness(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="text" icon="tools" size="small" @click="hintChangeToCustomer(scope.row)">转换客户</el-button>    
             </template>
         </el-table-column>
         </el-table>
@@ -147,6 +148,7 @@ import {
 import infoList from '@/mixins/infoList'
 import { getProjectInformationList } from '@/api/projectInformation'
 import { getUserList } from '@/api/user'
+import { createCustomer, getCustomerList } from '@/api/customerData'
 export default {
   name: 'Business',
   mixins: [infoList],
@@ -188,6 +190,64 @@ export default {
     await this.getDict('Source')
   },
   methods: {
+    async hintChangeToCustomer(row) {
+      this.$confirm('确定要转换客户吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.changeToCustomer(row)
+      })
+    },
+    async changeToCustomer(row) {
+      const res1 = await findBusiness({ ID: row.ID })
+      if (res1.code === 0) {
+        this.formData = res1.data.rebusiness
+      }
+      const res = await getCustomerList({ page: 1, pageSize: 999 })
+      let flag = 0
+      res.data.list && res.data.list.forEach(item => {
+        if(item.telephone === this.formData.telephoneNumber) {
+          flag = 1
+        }
+      })
+
+      if (flag) {
+        this.$message({
+          type: 'warning',
+          message: '电话号码重复'
+        })
+      }
+      else {
+        let temp  = {
+          name: this.formData.company==="" ? this.formData.name : this.formData.company,
+          type: this.formData.company==="" ? 1 : 0,
+          linkman: this.formData.name,
+          iDNumber: '',
+          address: '',
+          telephone: this.formData.telephoneNumber,
+          invoice: '',
+          bank: '',
+          account: '',
+          remark: this.formData.remark,
+          audit: 1,
+          principal: this.formData.principal,
+        }
+        let res = await createCustomer(temp)
+        if (res.code === 0) {
+          this.$message({
+            type: 'success',
+            message: '转换客户成功'
+          })
+        }
+        else {
+          this.$message({
+            type: 'warning',
+            message: '转换客户失败'
+          })
+        }
+      }
+    },
     async setCompanyOptions() {
       let list = []
       const res = await getBusinessList({ page: 1, pageSize: 999 })
