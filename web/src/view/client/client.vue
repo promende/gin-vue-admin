@@ -13,14 +13,8 @@
         <el-form-item label="联系人">
           <el-input v-model="searchInfo.linkman" placeholder="支持模糊查找" />
         </el-form-item>
-        <el-form-item label="身份证号">
-          <el-input v-model="searchInfo.iDNumber" placeholder="支持模糊查找" />
-        </el-form-item>
         <el-form-item label="联系电话">
           <el-input v-model="searchInfo.telephone" placeholder="支持模糊查找" />
-        </el-form-item>
-        <el-form-item label="开票名称">
-          <el-input v-model="searchInfo.invoice" placeholder="支持模糊查找" />
         </el-form-item>
         <el-form-item label="审核状态">
           <el-select v-model="searchInfo.audit" placeholder="请选择" style="width:92%" default-first-option clearable filterable >

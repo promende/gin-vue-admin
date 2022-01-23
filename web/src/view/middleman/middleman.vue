@@ -68,7 +68,7 @@
             </template>
         </el-table-column>
         <el-table-column align="left" label="创建人" prop="creator" width="120" />
-        <el-table-column align="left" label="创建日期" width="180" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date" sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -232,7 +232,7 @@ export default {
         this.telephoneNumberOptions.push(option)
       })
     },
-     async setNameOptions() {
+    async setNameOptions() {
       let list = []
       const res = await getMiddlemanList({ page: 1, pageSize: 999 })
       if(this.searchInfo.name === undefined || this.searchInfo.name === '') {

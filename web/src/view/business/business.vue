@@ -73,7 +73,7 @@
         </el-table-column>
         <el-table-column align="left" label="意向项目" prop="project" width="120" />
         <el-table-column align="left" label="负责人" prop="principal" width="120" />
-        <el-table-column align="left" label="创建日期" width="180" sortable>
+        <el-table-column align="left" label="创建日期" width="180" prop="date"  sortable>
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -370,7 +370,7 @@ export default {
       await this.setTelephoneNumberList()
       if(this.type === 'update'){
         if(this.formData.name != "" && this.formData.telephoneNumber != "" && this.formData.source != undefined 
-        && this.formData.project != undefined && this.formData.principal != undefined ) {
+        && this.formData.project != undefined && this.formData.principal != "" ) {
           let index = -1
           for(let i = 0 ; i < this.telephoneNumberList.length; i++){
             if(this.formData.telephoneNumber === this.telephoneNumberList[i]){
@@ -407,7 +407,7 @@ export default {
           }
         }
         if(this.formData.name != "" && this.formData.telephoneNumber != "" && this.formData.source != undefined 
-        && this.formData.project != undefined && this.formData.principal != undefined && flag!= 1) {
+        && this.formData.project != undefined && this.formData.principal != "" && flag!= 1) {
           let res
           res = await createBusiness(this.formData)
           if (res.code === 0) {
