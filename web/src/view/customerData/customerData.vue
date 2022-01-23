@@ -62,12 +62,43 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" width="55" type="expand">
+        <el-table-column align="left" type="expand">
           <template #default="scope">
-            <p>开票名称：{{ scope.row.invoice }}</p>
-            <p>开户银行：{{ scope.row.bank }}</p>
-            <p>开户账号：{{ scope.row.account }}</p>
-            <p>备注：{{ scope.row.remark }}</p>
+            <el-descriptions :column="5" border>
+              <el-descriptions-item label="商家名称" label-align="center" align="left" width="10px" label-class-name="background: #E1F3D8;">
+                {{ scope.row.name }}
+              </el-descriptions-item>
+              <el-descriptions-item label="商家性质" label-align="center" align="left" width="10px">
+                {{ filterDict(scope.row.type,"intermediaryType") }}
+              </el-descriptions-item>
+              <el-descriptions-item label="联系人" label-align="center" align="left" width="10px">
+                {{ scope.row.linkman }}
+              </el-descriptions-item>
+              <el-descriptions-item label="联系电话" label-align="center" align="left" width="80px">
+                {{ scope.row.telephone }}
+              </el-descriptions-item>
+              <el-descriptions-item label="身份证号" label-align="center" align="left" width="80px">
+                {{ scope.row.iDNumber }}
+              </el-descriptions-item>
+              <el-descriptions-item label="详细地址" label-align="center" align="left" width="80px">
+                {{ scope.row.address }}
+              </el-descriptions-item>
+              <el-descriptions-item label="开票名称" label-align="center" align="left" width="80px">
+                {{ scope.row.invoice }}
+              </el-descriptions-item>
+              <el-descriptions-item label="开户银行" label-align="center" align="left" width="80px">
+                {{ scope.row.bank }}
+              </el-descriptions-item>
+              <el-descriptions-item label="开户账号" label-align="center" align="left" width="80px">
+                {{ scope.row.account }}
+              </el-descriptions-item>
+              <el-descriptions-item label="负责人" label-align="center" align="left" width="80px">
+                {{ scope.row.principal }}
+              </el-descriptions-item>
+              <el-descriptions-item label="备注" label-align="center" align="left" width="80px">
+                {{ scope.row.remark }}
+              </el-descriptions-item>
+            </el-descriptions>
           </template>
         </el-table-column>
         <el-table-column align="left" label="商家名称" prop="name" width="120"/>
@@ -78,9 +109,8 @@
         </el-table-column>
         <el-table-column align="left" label="联系人" prop="linkman" width="120" />
         <el-table-column align="left" label="联系电话" prop="telephone" width="120" />
-        <el-table-column align="left" label="身份证号" prop="iDNumber" width="120" />
-        <el-table-column align="left" label="详细地址" prop="address" width="120" />
-        
+        <!-- <el-table-column align="left" label="身份证号" prop="iDNumber" width="120" />
+        <el-table-column align="left" label="详细地址" prop="address" width="120" /> -->
         <!-- <el-table-column align="left" label="开票名称" prop="invoice" width="120" />
         <el-table-column align="left" label="开户银行" prop="bank" width="120" />
         <el-table-column align="left" label="开户账号" prop="account" width="120" />
