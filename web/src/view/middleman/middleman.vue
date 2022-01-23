@@ -75,8 +75,8 @@
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateMiddleman(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button v-if="scope.row.auditType===0" type="text" icon="tools" size="small" @click="changeAuditType(scope.row)">取消审核</el-button>
-            <el-button v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row)">审核</el-button> 
+            <el-button v-if="scope.row.auditType===0" type="text" icon="tools" size="small" @click="changeAuditType1(scope.row)">取消审核</el-button>
+            <el-button v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row)">审核</el-button>    
             </template>
         </el-table-column>
         </el-table>
@@ -195,7 +195,25 @@ export default {
     setCreator() {
       this.formData.creator = this.userInfo.nickName
     },
-    async changeAuditType(row) {
+    changeAuditType(row) {
+      this.$confirm('确定要审核吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.changeAuditType2(row)
+      })
+    },
+    changeAuditType1(row) {
+      this.$confirm('确定要取消审核吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.changeAuditType2(row)
+      })
+    },
+    async changeAuditType2(row) {
       const res = await findMiddleman({ ID: row.ID })
       if (res.code === 0) {
         this.formData = res.data.remiddleman
