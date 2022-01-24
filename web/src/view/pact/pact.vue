@@ -35,7 +35,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -143,7 +143,8 @@
                 {{ formatDate(scope.row.CreatedAt) }}
               </el-descriptions-item>
               <el-descriptions-item label="审核状态" label-align="center" align="left" width="80px">
-                {{ filterDict(scope.row.auditType,"auditType") }}
+                <el-tag v-if="scope.row.auditType===0" class="ml-2" type="success">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
+                <el-tag v-else class="ml-2" type="danger">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
               </el-descriptions-item>
             </el-descriptions>
           </template>
@@ -153,7 +154,8 @@
         <el-table-column align="left" label="项目名称" prop="project" width="120" />
         <el-table-column align="left" label="审核状态" prop="auditType" width="120">
             <template #default="scope">
-            {{ filterDict(scope.row.auditType,"auditType") }}
+              <el-tag v-if="scope.row.auditType===0" class="ml-2" type="success">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
+              <el-tag v-else class="ml-2" type="danger">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
             </template>
         </el-table-column>
         <el-table-column align="left" label="负责人" prop="principal" width="120" />
@@ -164,6 +166,8 @@
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updatePact(scope.row);handleRowClick(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="mini" @click="deletePact(scope.row);handleRowClick(scope.row)">删除</el-button>
+            <el-button v-if="scope.row.auditType===0" type="text" icon="tools" size="small" @click="handleRowClick(scope.row);changeAuditType1(scope.row);">取消审核</el-button>
+            <el-button v-else type="text" icon="tools" size="small" @click="handleRowClick(scope.row);changeAuditType(scope.row);">审核</el-button> 
             </template>
         </el-table-column>
         </el-table>
@@ -179,99 +183,96 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增合同">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="合同编号:">
-          <el-input v-model="formData.contractNumber" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="项目名称:">
+        <el-form-item label="项目名称">
           <el-input v-model="formData.project" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="楼栋名称:">
+        <el-form-item label="楼栋名称">
           <el-input v-model="formData.building" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="楼层名称:">
+        <el-form-item label="楼层名称">
           <el-input v-model="formData.floor" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="房源名称:">
+        <el-form-item label="房源名称">
           <el-input v-model="formData.housing" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="商家名称:">
+        <el-form-item label="商家名称">
           <el-input v-model="formData.merchant" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="合同类型:">
+        <el-form-item label="合同类型">
           <el-select v-model="formData.contractType" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in contractTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="合同签署:">
+        <el-form-item label="合同签署">
           <el-select v-model="formData.contractSigning" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in contractSigningOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="是否续签:">
+        <el-form-item label="是否续签">
           <el-select v-model="formData.renew" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in renewOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="关联合同编号:">
+        <el-form-item label="关联合同编号">
           <el-input v-model="formData.associatedContractNumber" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="是否中介介入:">
+        <el-form-item label="是否中介介入">
           <el-select v-model="formData.intermediary" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in IntermediaryOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="中介公司:">
+        <el-form-item label="中介公司">
           <el-input v-model="formData.agency" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="中介联系人:">
+        <el-form-item label="中介联系人">
           <el-input v-model="formData.intermediaryContact" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="负责人:">
+        <el-form-item label="负责人">
           <el-input v-model="formData.principal" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="交付日:">
+        <el-form-item label="交付日">
           <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable />
         </el-form-item>
-        <el-form-item label="合同开始时间:">
+        <el-form-item label="合同开始时间">
           <el-date-picker v-model="formData.startTime" type="date" style="width:100%" placeholder="选择日期" clearable />
         </el-form-item>
-        <el-form-item label="合同结束时间:">
+        <el-form-item label="合同结束时间">
           <el-date-picker v-model="formData.endTime" type="date" style="width:100%" placeholder="选择日期" clearable />
         </el-form-item>
-        <el-form-item label="支付周期:">
+        <el-form-item label="支付周期">
           <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="单价:">
+        <el-form-item label="单价">
           <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="租金:">
+        <el-form-item label="租金">
           <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="服务费:">
+        <el-form-item label="服务费">
           <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="物管费:">
+        <el-form-item label="物管费">
           <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="合同总金额:">
+        <el-form-item label="合同总金额">
           <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="设置费:">
+        <el-form-item label="设置费">
           <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="保证金:">
+        <el-form-item label="保证金">
           <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="备注:">
+        <el-form-item label="备注">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="审核状态:">
+        <el-form-item label="审核状态">
           <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable>
             <el-option v-for="(item,key) in auditTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
@@ -362,6 +363,56 @@ export default {
     await this.getDict('Intermediary')
   },
   methods: {
+    // setContractNumber() {
+    //   this.formData.contractNumber = ""
+    //   var date = new Date();
+    //   var year = date.getFullYear();
+    //   var month = date.getMonth() + 1;
+    //   var strDate = date.getDate();
+    //   var second = date.getSeconds()
+    //   var millisecond = date.getMilliseconds()
+    //   var random = Math.round(Math.random() * 1000)
+    //   if (month >= 1 && month <= 9) {
+    //     month = "0" + month;
+    //   }
+    //   if (strDate >= 0 && strDate <= 9) {
+    //     strDate = "0" + strDate;
+    //   }
+    //   this.formData.contractNumber = year + month + strDate + second + millisecond + random;
+    // },
+    changeAuditType(row) {
+      this.$confirm('确定要审核吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.changeAuditType2(row)
+      })
+    },
+    changeAuditType1(row) {
+      this.$confirm('确定要取消审核吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.changeAuditType2(row)
+      })
+    },
+    async changeAuditType2(row) {
+      const res = await findPact({ ID: row.ID })
+      if (res.code === 0) {
+        this.formData = res.data.rept
+        this.formData.auditType = this.formData.auditType===0 ? 1 : 0
+      }
+      let flag = await updatePact(this.formData)
+      if (flag.code === 0) {
+        this.$message({
+          type: 'success',
+          message: '更改成功'
+        })
+        this.getTableData()
+      }
+    },
     handleRowClick(row) {
       row.expanded = !row.expanded;
       this.$refs.multipleTable.toggleRowExpansion(row, row.expanded);
