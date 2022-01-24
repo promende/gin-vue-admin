@@ -221,7 +221,7 @@ export default {
       else {
         let temp  = {
           name: this.formData.company==="" ? this.formData.name : this.formData.company,
-          type: this.formData.company==="" ? 1 : 0,
+          type: this.formData.company==="" ? 0 : 1,
           linkman: this.formData.name,
           iDNumber: '',
           address: '',

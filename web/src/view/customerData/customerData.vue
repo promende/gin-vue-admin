@@ -149,36 +149,36 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增客户">
       <el-form :model="formData" label-position="right" label-width="80px" ref="formData" :rules="rules">
         <el-form-item label="商家名称" prop="name">
-          <el-input v-model.trim="formData.name" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.name" clearable placeholder="请输入" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="商家性质" prop="type">
-          <el-select v-model="formData.type" placeholder="请选择" style="width:100%" clearable>
+          <el-select v-model="formData.type" placeholder="请选择" style="width:100%" clearable :disabled="this.formData.audit===0">
             <el-option v-for="(item,key) in intermediaryTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="联系人" prop="linkman">
-          <el-input v-model.trim="formData.linkman" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.linkman" clearable placeholder="请输入" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="联系电话" prop="telephone">
-          <el-input v-model.trim="formData.telephone" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.telephone" clearable placeholder="请输入" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="身份证号" prop="iDNumber">
-          <el-input v-model.trim="formData.iDNumber" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.iDNumber" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="详细地址" prop="address">
-          <el-input v-model.trim="formData.address" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.address" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="开票名称" prop="invoice">
-          <el-input v-model.trim="formData.invoice" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.invoice" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="开户银行" prop="bank">
-          <el-input v-model.trim="formData.bank" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.bank" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="开户账号" prop="account">
-          <el-input v-model.trim="formData.account" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.account" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model.trim="formData.remark" clearable placeholder="请输入" />
+          <el-input v-model.trim="formData.remark" clearable placeholder="" :disabled="this.formData.audit===0"/>
         </el-form-item>
         <el-form-item label="审核状态" prop="audit">
           <el-select v-model="formData.audit" placeholder="请选择" style="width:100%" clearable disabled>

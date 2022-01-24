@@ -95,18 +95,18 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增中介联系人">
       <el-form :model="formData" label-position="right" label-width="80px" ref="formData" :rules="rules">
         <el-form-item label="所属公司" prop="company">
-          <el-select v-model="formData.company" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCompanyOptions">
+          <el-select v-model="formData.company" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCompanyOptions" :disabled="this.formData.auditType===0">
             <el-option v-for="(item,key) in companyOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="联系人" prop="name">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+          <el-input v-model="formData.name" clearable placeholder="请输入" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="联系电话" prop="telephoneNumber">
-          <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
+          <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="formData.remark" clearable placeholder="请输入" />
+          <el-input v-model="formData.remark" clearable placeholder="" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="审核状态" prop="auditType">
           <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable disabled>

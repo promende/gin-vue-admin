@@ -90,16 +90,16 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增中介公司">
       <el-form :model="formData" label-position="right" label-width="110px" ref="formData" :rules="rules">
         <el-form-item label="中介公司名称" prop="name">
-          <el-input v-model="formData.name" clearable placeholder="请输入" />
+          <el-input v-model="formData.name" clearable placeholder="请输入" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="联系电话">
-          <el-input v-model="formData.telephoneNumber" clearable placeholder="请输入" />
+          <el-input v-model="formData.telephoneNumber" clearable placeholder="" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="社会信用代码">
-          <el-input v-model="formData.code" clearable placeholder="请输入" />
+          <el-input v-model="formData.code" clearable placeholder="" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="formData.remark" clearable placeholder="请输入" />
+          <el-input v-model="formData.remark" clearable placeholder="" :disabled="this.formData.auditType===0"/>
         </el-form-item>
         <el-form-item label="审核状态" prop="auditType">
           <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable disabled>
