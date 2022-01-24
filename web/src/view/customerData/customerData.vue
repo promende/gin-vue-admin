@@ -60,6 +60,7 @@
         :default-sort = "{prop: 'date', order: 'descending'}"
         row-key="ID"
         @selection-change="handleSelectionChange"
+        @row-click="handleRowClick"
         >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" type="expand">
@@ -127,10 +128,10 @@
         </el-table-column>
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
-            <el-button type="text" icon="edit" size="small" class="table-button" @click="updateCustomer(scope.row)">变更</el-button>
-            <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button v-if="scope.row.audit===0" type="text" icon="tools" size="small" @click="changeAuditType1(scope.row)">取消审核</el-button>
-            <el-button v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row)">审核</el-button> 
+            <el-button type="text" icon="edit" size="small" class="table-button" @click="updateCustomer(scope.row);handleRowClick(scope.row)">变更</el-button>
+            <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row);handleRowClick(scope.row)">删除</el-button>
+            <el-button v-if="scope.row.audit===0" type="text" icon="tools" size="small" @click="changeAuditType1(scope.row);handleRowClick(scope.row)">取消审核</el-button>
+            <el-button v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row);handleRowClick(scope.row)">审核</el-button> 
             </template>
         </el-table-column>
         </el-table>
@@ -186,7 +187,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="负责人" prop="principal">
-          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setPrincipalOptions">
+          <el-select v-model="formData.principal" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setPrincipalOptions" :disabled="this.formData.audit===0">
             <el-option v-for="(item,key) in principalOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -260,6 +261,10 @@ export default {
     await this.getDict('auditType')
   },
   methods: {
+    handleRowClick(row) {
+      row.expanded = !row.expanded;
+      this.$refs.multipleTable.toggleRowExpansion(row, row.expanded);
+    },
     changeAuditType(row) {
       this.$confirm('确定要审核吗?', '提示', {
         confirmButtonText: '确定',

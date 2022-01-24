@@ -13,7 +13,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="联系电话">
-          <el-select v-model="searchInfo.name" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setTelephoneNumberOptions">
+          <el-select v-model="searchInfo.telephoneNumber" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setTelephoneNumberOptions">
             <el-option v-for="(item,key) in telephoneNumberOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
