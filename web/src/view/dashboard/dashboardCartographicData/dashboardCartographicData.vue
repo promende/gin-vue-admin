@@ -86,7 +86,7 @@ export default {
 	              var weather = new AMap.Weather();
 	              //执行实时天气信息查询
 	              weather.getLive(result.city, function(err, data) {
-	                  console.log(err, data);
+	                  // console.log(err, data);
                     that.data.province = data.province
                     that.data.city = data.city
                     that.data.humidity = data.humidity
