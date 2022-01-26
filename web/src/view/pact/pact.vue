@@ -35,7 +35,7 @@
     </div>
     <div class="gva-table-box">
         <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog();setHousingOptions()">新增</el-button>
+            <el-button size="mini" type="primary" icon="plus" @click="openDialog();setAuditType()">新增</el-button>
             <el-popover v-model:visible="deleteVisible" placement="top" width="160">
             <p>确定要删除吗？</p>
             <div style="text-align: right; margin-top: 8px;">
@@ -184,19 +184,19 @@
         </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="新增合同">
-      <el-form :model="formData" label-position="right" label-width="100px">
-        <el-form-item label="租赁范围">
+      <el-form :model="formData" label-position="right" label-width="120px" ref="formData" :rules="rules">
+        <el-form-item label="租赁范围" prop="a">
           <el-cascader
             v-model="this.housingSelects"
             style="width:100%"
             :options="housingOptions"
-            :props="{ multiple:true, label:'label', value:'value', disabled:'disabled'}"
+            :props="{ multiple:true, label:'label', value:'value', disabled:'disabled', checkStrictly:false}"
             @visible-change="setHousingOptions"
           />
         </el-form-item>
         <el-row style="margin-top:-10px">
             <el-col :span="12">
-              <el-form-item label="商家名称">
+              <el-form-item label="商家名称" prop="b">
                 <el-select v-model="formData.merchant" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCustomerOptions" @change="setPrincipal">
                   <el-option v-for="(item,key) in customerOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
@@ -210,14 +210,14 @@
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
-              <el-form-item label="合同类型">
+              <el-form-item label="合同类型" prop="c">
                 <el-select v-model="formData.contractType" placeholder="请选择" style="width:100%" clearable>
                   <el-option v-for="(item,key) in contractTypeOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="合同签署">
+              <el-form-item label="合同签署" prop="d">
                 <el-select v-model="formData.contractSigning" placeholder="请选择" style="width:100%" clearable>
                   <el-option v-for="(item,key) in contractSigningOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
@@ -226,80 +226,99 @@
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
-              <el-form-item label="是否续签">
+              <el-form-item label="是否续签" prop="e">
                 <el-select v-model="formData.renew" placeholder="请选择" style="width:30%" clearable>
                   <el-option v-for="(item,key) in renewOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="关联合同编号" v-if="this.formData.renew === 0">
+              <el-form-item label="关联合同编号" v-if="this.formData.renew === 0" prop="f">
                 <el-input v-model="formData.associatedContractNumber" clearable placeholder="请输入" />
               </el-form-item>
             </el-col>
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
-              <el-form-item label="是否中介介入">
+              <el-form-item label="是否中介介入" prop="g">
                 <el-select v-model="formData.intermediary" placeholder="请选择" style="width:30%" clearable>
                   <el-option v-for="(item,key) in IntermediaryOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="中介人" v-if="this.formData.intermediary===0">
+              <el-form-item label="中介人" v-if="this.formData.intermediary===0" prop="h">
                 <el-cascader
                   v-model="this.middlemanSelects"
                   style="width:100%"
                   :options="middlemanOptions"
-                  :props="{ multiple:true, label:'label', value:'value', disabled:'disabled'}"
+                  :props="{ multiple:false, label:'label', value:'value', disabled:'disabled'}"
                   @visible-change="setMiddlemanOptions"
                 />
               </el-form-item>
             </el-col>
         </el-row>
-        <el-form-item label="交付日" style="margin-top:-10px">
-          <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable />
-        </el-form-item>
-        <el-form-item label="合同开始时间">
-          <el-date-picker v-model="formData.startTime" type="date" style="width:100%" placeholder="选择日期" clearable />
-        </el-form-item>
-        <el-form-item label="合同结束时间">
-          <el-date-picker v-model="formData.endTime" type="date" style="width:100%" placeholder="选择日期" clearable />
-        </el-form-item>
-        <el-form-item label="支付周期">
-          <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="单价">
-          <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="租金">
+        <el-row style="margin-top:-20px">
+            <el-col :span="12">
+              <el-form-item label="交付日" style="margin-top:-10px" prop="date1">
+                <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="合同起止时间" style="margin-top:-10px" prop="j">
+                <el-date-picker
+                  style="width:100%"
+                  v-model="beginToEnd"
+                  type="daterange"
+                  unlink-panels
+                  range-separator="-"
+                  start-placeholder="合同开始时间"
+                  end-placeholder="合同结束时间"
+                  :shortcuts="shortcuts"
+                >
+                </el-date-picker>
+              </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row style="margin-top:-20px">
+            <el-col :span="12">
+              <el-form-item label="支付周期" prop="k">
+                <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
+                  <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="单价" prop="h">
+                <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable>
+                  <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+        </el-row>
+        <el-form-item label="租金" prop="a">
           <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="服务费">
+        <el-form-item label="服务费" prop="a">
           <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="物管费">
+        <el-form-item label="物管费" prop="a">
           <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="合同总金额">
+        <el-form-item label="合同总金额" prop="a">
           <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="设置费">
+        <el-form-item label="设置费" prop="a">
           <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
         </el-form-item>
-        <el-form-item label="保证金">
+        <el-form-item label="保证金" prop="a">
           <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="审核状态">
-          <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable>
+          <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable disabled>
             <el-option v-for="(item,key) in auditTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -307,7 +326,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog();gethousingSelects()">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
         </div>
       </template>
     </el-dialog>
@@ -358,6 +377,7 @@ export default {
       middlemanSelects: [],
       middlemanOptions: [],
       customerOptions: [],
+      beginToEnd: [],
       formData: {
         contractNumber: '',
         project: '',
@@ -373,9 +393,9 @@ export default {
         agency: '',
         intermediaryContact: '',
         principal: '',
-        deliveryDate: new Date(),
-        startTime: new Date(),
-        endTime: new Date(),
+        deliveryDate: '',
+        startTime: '',
+        endTime: '',
         paymentCycle: undefined,
         univalence: undefined,
         rent: 0,
@@ -386,6 +406,26 @@ export default {
         earnestMoney: 0,
         remark: '',
         auditType: undefined,
+      },
+      rules: {
+        a:                [{ required: true, message: '请输入租赁范围',  trigger: 'blur' }],
+        b:                [{ required: true, message: '请输入商家名称',  trigger: 'blur' }],
+        c:                [{ required: true, message: '请输入合同类型',  trigger: 'blur' }],
+        d:                [{ required: true, message: '请输入合同签署',  trigger: 'blur' }],
+        e:                [{ required: true, message: '请输入是否续签',  trigger: 'blur' }],
+        f:                [{ required: true, message: '请输入关联合同编号',  trigger: 'blur' }],
+        g:                [{ required: true, message: '请输入是否中介介入',  trigger: 'blur' }],
+        h:                [{ required: true, message: '请输入中介人',  trigger: 'blur' }],date1: [
+    {
+      type: 'date',
+      required: true,
+      message: 'Please pick a date',
+      trigger: 'change',
+    },
+  ],
+        j:                [{ type: 'date', required: true, message: '请输入合同起止时间',  trigger: 'change' }],
+        k:                [{ required: true, message: '请输入支付周期',  trigger: 'blur' }],
+        l:                [{ required: true, message: '请输入单价',  trigger: 'blur' }],
       }
     }
   },
@@ -400,6 +440,9 @@ export default {
     await this.getDict('Intermediary')
   },
   methods: {
+    setAuditType() {
+      this.formData.auditType = 1
+    },
     async setPrincipal(){
       const res = await getCustomerList({ page: 1, pageSize: 999 })
       res.data.list && res.data.list.forEach(item => {
@@ -485,13 +528,62 @@ export default {
                   floorOption.children.push(housingOption)
                 }
               })
+              if(floorOption.children.length != 0)
+                buildingOption.children.push(floorOption)
+            }
+          })
+          if(buildingOption.children.length != 0)
+            option.children.push(buildingOption)
+        }
+      })
+        if(option.children.length != 0)
+          this.housingOptions.push(option)
+      })
+
+      console.log(this.housingOptions)
+    },
+    async setHousingOptions1() {
+      this.housingOptions = []
+      const resProject = await getProjectInformationList({ page: 1, pageSize: 999 })
+      const resBuilding = await getBuildingInformationList({ page: 1, pageSize: 999 })
+      const resFloor = await getFloorInformationList({ page: 1, pageSize: 999 })
+      const resHousing = await getHousingMaintenanceList({ page: 1, pageSize: 999 })
+      resProject.data.list && resProject.data.list.forEach(item => {
+        const option = {
+          label: item.name,
+          value: item.name,
+          children: [],
+        }
+        resBuilding.data.list && resBuilding.data.list.forEach(buildingItem => {
+        if(buildingItem.project === option.value){
+          const buildingOption = {
+            label: buildingItem.name,
+            value: buildingItem.name,
+            children: []
+          }
+          resFloor.data.list && resFloor.data.list.forEach(floorItem => {
+            if(floorItem.build === buildingOption.value && floorItem.project === option.value){
+              const floorOption = {
+                label: floorItem.name,
+                value: floorItem.name,
+                children: []
+              }
+              resHousing.data.list && resHousing.data.list.forEach(housingItem => {
+                if(housingItem.floor === floorOption.value && housingItem.build === buildingOption.value && housingItem.project === option.value){
+                  const housingOption = {
+                    label: housingItem.name,
+                    value: housingItem.name,
+                    children: []
+                  }
+                  floorOption.children.push(housingOption)
+                }
+              })
               buildingOption.children.push(floorOption)
             }
           })
           option.children.push(buildingOption)
         }
       })
-        // this.setBuildingOptions(option)
         this.housingOptions.push(option)
       })
     },
@@ -649,7 +741,11 @@ export default {
       }
     },
     closeDialog() {
+      this.$refs.formData.resetFields()
       this.dialogFormVisible = false
+      this.housingSelects = []
+      this.middlemanSelects = []
+      this.beginToEnd = []
       this.formData = {
         contractNumber: '',
         project: '',
@@ -694,6 +790,11 @@ export default {
       }
     },
     async enterDialog() {
+      this.housingSelects && this.housingSelects.forEach(item => {
+        console.log(item)
+      })
+      console.log(this.middlemanSelects)
+      console.log(this.beginToEnd)
       let res
       switch (this.type) {
         case 'create':
