@@ -149,7 +149,7 @@
             </el-descriptions>
           </template>
         </el-table-column>
-        <el-table-column align="left" label="合同编号" prop="contractNumber" width="120" />
+        <el-table-column align="left" label="合同编号" prop="contractNumber" width="160" />
         <el-table-column align="left" label="商家名称" prop="merchant" width="120" />
         <el-table-column align="left" label="项目名称" prop="project" width="120" />
         <el-table-column align="left" label="审核状态" prop="auditType" width="120">
@@ -190,7 +190,7 @@
             v-model="this.housingSelects"
             style="width:100%"
             :options="housingOptions"
-            :props="{ multiple:true, label:'label', value:'value', disabled:'disabled', checkStrictly:false}"
+            :props="{ multiple:false, label:'label', value:'value', disabled:'disabled', checkStrictly:false}"
             @visible-change="setHousingOptions"
           />
         </el-form-item>
@@ -227,7 +227,7 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="是否续签" prop="e">
-                <el-select v-model="formData.renew" placeholder="请选择" style="width:30%" clearable>
+                <el-select v-model="formData.renew" placeholder="请选择" style="width:30%" clearable  @visible-change="setAssociatedContractNumber">
                   <el-option v-for="(item,key) in renewOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -241,7 +241,7 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="是否中介介入" prop="g">
-                <el-select v-model="formData.intermediary" placeholder="请选择" style="width:30%" clearable>
+                <el-select v-model="formData.intermediary" placeholder="请选择" style="width:30%" clearable @visible-change="setMiddlemanSelects">
                   <el-option v-for="(item,key) in IntermediaryOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -249,6 +249,7 @@
             <el-col :span="12">
               <el-form-item label="中介人" v-if="this.formData.intermediary===0" prop="h">
                 <el-cascader
+                  clearable
                   v-model="this.middlemanSelects"
                   style="width:100%"
                   :options="middlemanOptions"
@@ -260,60 +261,77 @@
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
-              <el-form-item label="交付日" style="margin-top:-10px" prop="date1">
+              <el-form-item label="交付日" style="margin-top:-10px" prop="deliveryDate">
                 <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="合同起止时间" style="margin-top:-10px" prop="j">
-                <el-date-picker
-                  style="width:100%"
-                  v-model="beginToEnd"
-                  type="daterange"
-                  unlink-panels
-                  range-separator="-"
+              <el-form-item label="合同起止时间" style="margin-top:-10px" prop="beginToEnd">
+                <el-date-picker v-model="this.beginToEnd" type="daterange" style="width:100%"
                   start-placeholder="合同开始时间"
+                  range-separator="-"
                   end-placeholder="合同结束时间"
-                  :shortcuts="shortcuts"
-                >
-                </el-date-picker>
+                  unlink-panels
+                />
               </el-form-item>
             </el-col>
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
-              <el-form-item label="支付周期" prop="k">
-                <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
-                  <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="单价" prop="h">
+              <el-form-item label="单价" prop="univalence">
                 <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable>
                   <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <el-form-item label="支付周期" prop="paymentCycle">
+                <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
+                  <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
+                </el-select>
+              </el-form-item>
+            </el-col>
         </el-row>
-        <el-form-item label="租金" prop="a">
-          <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
-        <el-form-item label="服务费" prop="a">
-          <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
-        <el-form-item label="物管费" prop="a">
-          <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
-        <el-form-item label="合同总金额" prop="a">
-          <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
-        <el-form-item label="设置费" prop="a">
-          <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
-        <el-form-item label="保证金" prop="a">
-          <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
-        </el-form-item>
+        <template v-if="formData.univalence===0">
+          <el-form-item label="日租金" prop="rent">
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="日服务费" prop="serviceCharge">
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="日物管费" prop="propertyManagementFee">
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="合同总金额" prop="contractGrandTotal">
+            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="设置费" prop="setUpFee">
+            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="保证金" prop="earnestMoney">
+            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+        </template>
+        <template v-if="formData.univalence===1">
+          <el-form-item label="月租金" prop="rent">
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="月服务费" prop="serviceCharge">
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="月物管费" prop="propertyManagementFee">
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="合同总金额" prop="contractGrandTotal">
+            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="设置费" prop="setUpFee">
+            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+          <el-form-item label="保证金" prop="earnestMoney">
+            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
+          </el-form-item>
+        </template>
         <el-form-item label="备注">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
@@ -415,17 +433,17 @@ export default {
         e:                [{ required: true, message: '请输入是否续签',  trigger: 'blur' }],
         f:                [{ required: true, message: '请输入关联合同编号',  trigger: 'blur' }],
         g:                [{ required: true, message: '请输入是否中介介入',  trigger: 'blur' }],
-        h:                [{ required: true, message: '请输入中介人',  trigger: 'blur' }],date1: [
-    {
-      type: 'date',
-      required: true,
-      message: 'Please pick a date',
-      trigger: 'change',
-    },
-  ],
-        j:                [{ type: 'date', required: true, message: '请输入合同起止时间',  trigger: 'change' }],
-        k:                [{ required: true, message: '请输入支付周期',  trigger: 'blur' }],
-        l:                [{ required: true, message: '请输入单价',  trigger: 'blur' }],
+        h:                [{ required: true, message: '请输入中介人',  trigger: 'blur' }],
+        deliveryDate:     [{ type: 'date', required: true, message: '请选择交付日', trigger: 'change'}],
+        beginToEnd:       [{ type: '1', required: true, message: '请选择合同起止时间', trigger: 'change'}],
+        paymentCycle:                [{ required: true, message: '请输入支付周期',  trigger: 'blur' }],
+        univalence:                [{ required: true, message: '请输入单价',  trigger: 'blur' }],
+        rent:             [{ required: true, message: '请输入计租面积（㎡)',  trigger: 'blur' }],
+        serviceCharge:                [{ required: true, message: '请输入实用面积（㎡）',  trigger: 'blur' }],
+        propertyManagementFee:             [{ required: true, message: '请输入计租面积（㎡)',  trigger: 'blur' }],
+        contractGrandTotal:                [{ required: true, message: '请输入实用面积（㎡）',  trigger: 'blur' }],
+        setUpFee:             [{ required: true, message: '请输入计租面积（㎡)',  trigger: 'blur' }],
+        earnestMoney:                [{ required: true, message: '请输入实用面积（㎡）',  trigger: 'blur' }],
       }
     }
   },
@@ -440,6 +458,49 @@ export default {
     await this.getDict('Intermediary')
   },
   methods: {
+    async setContractNumber(){
+      this.formData.contractNumber = ''
+      const res = await getProjectInformationList({ page: 1, pageSize: 999 })
+      res.data.list && res.data.list.forEach(item => {
+        if(this.formData.project === item.name){
+          this.formData.contractNumber = item.abbreviation
+        }
+      })
+      let temp = new Date()
+      let year = temp.getFullYear()
+      let month = temp.getMonth() + 1
+      let day = temp.getDate()
+      month = month > 10 ? month.toString() : '0'+month.toString()
+      day = day > 10 ? day.toString() : '0'+day.toString()
+      this.formData.contractNumber = this.formData.contractNumber + year + month + day
+      const resPact = await getPactList({ page: 1, pageSize: 999 })
+      let s = ''
+      resPact.data.list && resPact.data.list.forEach(item => {
+        if(this.formData.contractNumber === item.contractNumber.slice(0,-4)){
+          s = item.contractNumber.slice(-4)
+        }
+      })
+      if(s === ''){
+        this.formData.contractNumber = this.formData.contractNumber + '0001'
+      }
+      else{
+        let number = parseInt(s) + 1
+        for(var len = (number + "").length; len < 4; len++) {
+            number = "0" + number;            
+        }
+        this.formData.contractNumber = this.formData.contractNumber + number
+      }
+    },
+    setAssociatedContractNumber() {
+      if(this.formData.renew===1){
+        this.formData.associatedContractNumber = ''
+      }
+    },
+    setMiddlemanSelects() {
+      if(this.formData.intermediary===1){
+        this.middlemanSelects = []
+      }
+    },
     setAuditType() {
       this.formData.auditType = 1
     },
@@ -737,6 +798,20 @@ export default {
       this.type = 'update'
       if (res.code === 0) {
         this.formData = res.data.rept
+        this.housingSelects = []
+        this.housingSelects.push(this.formData.project)
+        this.housingSelects.push(this.formData.building)
+        this.housingSelects.push(this.formData.floor)
+        this.housingSelects.push(this.formData.housing)
+        this.setHousingOptions()
+        this.middlemanSelects = []
+        this.middlemanSelects.push(this.formData.agency)
+        this.middlemanSelects.push(this.formData.intermediaryContact)
+        this.setMiddlemanOptions()
+        this.beginToEnd = []
+        this.beginToEnd.push(this.formData.startTime)
+        this.beginToEnd.push(this.formData.endTime)
+
         this.dialogFormVisible = true
       }
     },
@@ -790,31 +865,124 @@ export default {
       }
     },
     async enterDialog() {
-      this.housingSelects && this.housingSelects.forEach(item => {
-        console.log(item)
-      })
-      console.log(this.middlemanSelects)
-      console.log(this.beginToEnd)
-      let res
-      switch (this.type) {
-        case 'create':
-          res = await createPact(this.formData)
-          break
-        case 'update':
-          res = await updatePact(this.formData)
-          break
-        default:
-          res = await createPact(this.formData)
-          break
+      // this.housingSelects && this.housingSelects.forEach(item => {
+      //   console.log(item)
+      // })
+      // console.log(this.middlemanSelects)
+      // console.log(this.beginToEnd)
+      // console.log(this.housingSelects.length)
+      // console.log(this.beginToEnd.length)
+      // console.log(this.formData)
+      if(this.type === 'update'){
+        if(this.housingSelects.length != 0 && this.formData.merchant != '' 
+        && this.formData.contractType != undefined && this.formData.contractSigning != undefined 
+        && this.formData.renew != undefined && this.formData.intermediary != undefined 
+        && this.formData.deliveryDate != '' && this.beginToEnd.length != 0 
+        && this.formData.univalence != undefined && this.formData.paymentCycle != undefined) {
+          // console.log(this.formData.intermediary)
+          // console.log(this.middlemanSelects.length)
+          // console.log(this.formData.renew)
+          // console.log(this.formData.associatedContractNumber)
+          if(this.formData.intermediary === 0 && this.middlemanSelects.length ===0 || this.formData.renew === 0 && this.formData.associatedContractNumber === ""){
+            this.$message({
+              type: 'warning',
+              message: '请填写必填项'
+            })
+          }
+          else{
+            this.formData.project = this.housingSelects[0]
+            this.formData.building = this.housingSelects[1]
+            this.formData.floor = this.housingSelects[2]
+            this.formData.housing = this.housingSelects[3]
+            this.formData.agency = this.middlemanSelects[0]
+            this.formData.intermediaryContact = this.middlemanSelects[1]
+            this.formData.startTime = this.beginToEnd[0]
+            this.formData.endTime = this.beginToEnd[1]
+            console.log(this.formData)
+            let res = await updatePact(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '更改成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+          }
+        }
+        else{
+          this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+          })
+        }
       }
-      if (res.code === 0) {
-        this.$message({
-          type: 'success',
-          message: '创建/更改成功'
-        })
-        this.closeDialog()
-        this.getTableData()
+      else{
+        if(this.housingSelects.length != 0 && this.formData.merchant != '' 
+        && this.formData.contractType != undefined && this.formData.contractSigning != undefined 
+        && this.formData.renew != undefined && this.formData.intermediary != undefined 
+        && this.formData.deliveryDate != '' && this.beginToEnd.length != 0 
+        && this.formData.univalence != undefined && this.formData.paymentCycle != undefined) {
+          // console.log(this.formData.intermediary)
+          // console.log(this.middlemanSelects.length)
+          // console.log(this.formData.renew)
+          // console.log(this.formData.associatedContractNumber)
+          if(this.formData.intermediary === 0 && this.middlemanSelects.length ===0 || this.formData.renew === 0 && this.formData.associatedContractNumber === ""){
+            this.$message({
+              type: 'warning',
+              message: '请填写必填项'
+            })
+          }
+          else{
+            this.formData.project = this.housingSelects[0]
+            this.formData.building = this.housingSelects[1]
+            this.formData.floor = this.housingSelects[2]
+            this.formData.housing = this.housingSelects[3]
+            this.formData.agency = this.middlemanSelects[0]
+            this.formData.intermediaryContact = this.middlemanSelects[1]
+            this.formData.startTime = this.beginToEnd[0]
+            this.formData.endTime = this.beginToEnd[1]
+            await this.setContractNumber()
+            console.log(this.formData)
+            let res = await createPact(this.formData)
+            if (res.code === 0) {
+              this.$message({
+                type: 'success',
+                message: '创建成功'
+              })
+              this.closeDialog()
+              this.getTableData()
+            }
+          }
+        }
+        else{
+          this.$message({
+            type: 'warning',
+            message: '请填写必填项'
+          })
+        }
       }
+
+      // let res
+      // switch (this.type) {
+      //   case 'create':
+      //     res = await createPact(this.formData)
+      //     break
+      //   case 'update':
+      //     res = await updatePact(this.formData)
+      //     break
+      //   default:
+      //     res = await createPact(this.formData)
+      //     break
+      // }
+      // if (res.code === 0) {
+      //   this.$message({
+      //     type: 'success',
+      //     message: '创建/更改成功'
+      //   })
+      //   this.closeDialog()
+      //   this.getTableData()
+      // }
     },
     openDialog() {
       this.type = 'create'
