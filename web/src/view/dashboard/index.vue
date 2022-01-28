@@ -33,7 +33,6 @@
         </div>
       </div>
     </div>
-    
     <div class="gva-card-box">
       <div class="gva-card">
         <div class="card-header">
@@ -68,47 +67,40 @@ export default {
     return {
       toolCards: [
         {
-          label: '用户管理',
-          icon: 'monitor',
-          name: 'user',
+          label: '商机',
+          icon: 'phone-filled',
+          name: 'business',
           color: '#ff9c6e',
           bg: 'rgba(255, 156, 110,.3)'
         },
         {
-          label: '角色管理',
-          icon: 'setting',
-          name: 'authority',
+          label: '中介公司',
+          icon: 'shop',
+          name: 'intermediaryCompany',
           color: '#69c0ff',
           bg: 'rgba(105, 192, 255,.3)'
         },
         {
-          label: '菜单管理',
-          icon: 'menu',
-          name: 'menu',
+          label: '中介人',
+          icon: 'avatar',
+          name: 'middleman',
           color: '#b37feb',
           bg: 'rgba(179, 127, 235,.3)'
         },
         {
-          label: '代码生成器',
-          icon: 'cpu',
-          name: 'autoCode',
+          label: '客户',
+          icon: 'list',
+          name: 'clientManagement',
           color: '#ffd666',
           bg: 'rgba(255, 214, 102,.3)'
         },
         {
-          label: '表单生成器',
-          icon: 'document-checked',
-          name: 'formCreate',
+          label: '合同',
+          icon: 'files',
+          name: 'contract',
           color: '#ff85c0',
           bg: 'rgba(255, 133, 192,.3)'
         },
-        {
-          label: '关于我们',
-          icon: 'user',
-          name: 'about',
-          color: '#5cdbd3',
-          bg: 'rgba(92, 219, 211,.3)'
-        }
       ]
     }
   },
@@ -216,8 +208,8 @@ export default {
             text-align: center;
             // align-items: center;
             &-icon {
-                width: 50px;
-                height: 50px !important;
+                width: 60px;
+                height: 60px !important;
                 border-radius: 8px;
                 @include flex-center;
                 justify-content: center;

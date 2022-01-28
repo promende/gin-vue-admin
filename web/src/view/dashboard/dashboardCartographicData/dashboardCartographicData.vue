@@ -12,7 +12,7 @@
   </el-row>
   <el-row :gutter="20">
     <el-col :span="12"><div class="grid-content"><font style="font-size:14px">空气湿度</font><br><font style="font-size:14px">{{data.humidity}}%</font></div></el-col>
-    <el-col :span="12"><div class="grid-content"><font style="font-size:14px">发布时间</font><br><font style="font-size:14px">{{data.reportTime}}</font></div></el-col>
+    <el-col :span="12"><div class="grid-content"><font style="font-size:14px">发布时间</font><br><font style="font-size:14px">{{ formatDate(data.reportTime) }}</font></div></el-col>
   </el-row>
 </template>
 
@@ -47,7 +47,9 @@
 
 
 <script>
+import infoList from '@/mixins/infoList'
 export default {
+  mixins: [infoList],
   data() {
     return {
       data: {
