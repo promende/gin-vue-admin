@@ -60,7 +60,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" type="expand" >
           <template #default="scope">
-            <el-descriptions :column="3" border>
+            <el-descriptions :column="5" border>
               <el-descriptions-item label="合同编号" label-align="center" align="left" width="10px" label-class-name="background: #E1F3D8;">
                 {{ scope.row.contractNumber }}
               </el-descriptions-item>
@@ -100,7 +100,7 @@
               <el-descriptions-item label="中介联系人" label-align="center" align="left" width="10px">
                 {{ scope.row.intermediaryContact }}
               </el-descriptions-item>
-              <el-descriptions-item label="负责人" label-align="center" align="left" width="10px">
+              <el-descriptions-item label="负责人" label-align="center" align="left" width="10px" span="2">
                 {{ scope.row.principal }}
               </el-descriptions-item>
               <el-descriptions-item label="交付日" label-align="center" align="left" width="80px">
@@ -118,16 +118,29 @@
               <el-descriptions-item label="单价" label-align="center" align="left" width="10px" label-class-name="background: #E1F3D8;">
                 {{ filterDict(scope.row.univalence,"univalence") }}
               </el-descriptions-item>
-              <el-descriptions-item label="租金" label-align="center" align="left" width="10px">
-                {{ scope.row.rent }}
-              </el-descriptions-item>
-              <el-descriptions-item label="服务费" label-align="center" align="left" width="10px">
-                {{ scope.row.serviceCharge }}
-              </el-descriptions-item>
-              <el-descriptions-item label="物管费" label-align="center" align="left" width="80px">
-                {{ scope.row.propertyManagementFee }}
-              </el-descriptions-item>
-              <el-descriptions-item label="合同总金额" label-align="center" align="left" width="80px">
+              <template v-if="scope.row.univalence===0">
+                <el-descriptions-item label="日租金" label-align="center" align="left" width="10px">
+                  {{ scope.row.rent }}
+                </el-descriptions-item>
+                <el-descriptions-item label="日服务费" label-align="center" align="left" width="10px">
+                  {{ scope.row.serviceCharge }}
+                </el-descriptions-item>
+                <el-descriptions-item label="日物管费" label-align="center" align="left" width="80px">
+                  {{ scope.row.propertyManagementFee }}
+                </el-descriptions-item>
+              </template>
+              <template v-if="scope.row.univalence===1">
+                <el-descriptions-item label="月租金" label-align="center" align="left" width="10px">
+                  {{ scope.row.rent }}
+                </el-descriptions-item>
+                <el-descriptions-item label="月服务费" label-align="center" align="left" width="10px">
+                  {{ scope.row.serviceCharge }}
+                </el-descriptions-item>
+                <el-descriptions-item label="月物管费" label-align="center" align="left" width="80px">
+                  {{ scope.row.propertyManagementFee }}
+                </el-descriptions-item>
+              </template>
+              <el-descriptions-item label="合同总金额" label-align="center" align="left" width="80px" span="2">
                 {{ scope.row.contractGrandTotal }}
               </el-descriptions-item>
               <el-descriptions-item label="设置费" label-align="center" align="left" width="80px">
@@ -136,15 +149,15 @@
               <el-descriptions-item label="保证金" label-align="center" align="left" width="10px">
                 {{ scope.row.earnestMoney }}
               </el-descriptions-item>
-              <el-descriptions-item label="备注" label-align="center" align="left" width="80px">
-                {{ scope.row.remark }}
-              </el-descriptions-item>
-              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px">
-                {{ formatDate(scope.row.CreatedAt) }}
-              </el-descriptions-item>
               <el-descriptions-item label="审核状态" label-align="center" align="left" width="80px">
                 <el-tag v-if="scope.row.auditType===0" class="ml-2" type="success">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
                 <el-tag v-else class="ml-2" type="danger">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px">
+                {{ formatDate(scope.row.CreatedAt) }}
+              </el-descriptions-item>  
+              <el-descriptions-item label="备注" label-align="center" align="left" width="80px">
+                {{ scope.row.remark }}
               </el-descriptions-item>
             </el-descriptions>
           </template>
@@ -233,7 +246,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="关联合同编号" v-if="this.formData.renew === 0" prop="f">
+              <el-form-item label="关联合同编号" v-if="this.formData.renew === 0" prop="associatedContractNumber">
                 <el-input v-model="formData.associatedContractNumber" clearable placeholder="请输入" />
               </el-form-item>
             </el-col>
@@ -272,6 +285,7 @@
                   range-separator="-"
                   end-placeholder="合同结束时间"
                   unlink-panels
+                  @change="setContractGrandTotal"
                 />
               </el-form-item>
             </el-col>
@@ -279,7 +293,7 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="单价" prop="univalence">
-                <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable>
+                <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable @visible-change="setFeeClear()">
                   <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -294,16 +308,16 @@
         </el-row>
         <template v-if="formData.univalence===0">
           <el-form-item label="日租金" prop="rent">
-            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="日服务费" prop="serviceCharge">
-            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="日物管费" prop="propertyManagementFee">
-            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="合同总金额" prop="contractGrandTotal">
-            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable disabled/>
           </el-form-item>
           <el-form-item label="设置费" prop="setUpFee">
             <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
@@ -314,16 +328,16 @@
         </template>
         <template v-if="formData.univalence===1">
           <el-form-item label="月租金" prop="rent">
-            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="月服务费" prop="serviceCharge">
-            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="月物管费" prop="propertyManagementFee">
-            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
           </el-form-item>
           <el-form-item label="合同总金额" prop="contractGrandTotal">
-            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable disabled/>
           </el-form-item>
           <el-form-item label="设置费" prop="setUpFee">
             <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
@@ -431,7 +445,7 @@ export default {
         c:                [{ required: true, message: '请输入合同类型',  trigger: 'blur' }],
         d:                [{ required: true, message: '请输入合同签署',  trigger: 'blur' }],
         e:                [{ required: true, message: '请输入是否续签',  trigger: 'blur' }],
-        f:                [{ required: true, message: '请输入关联合同编号',  trigger: 'blur' }],
+        associatedContractNumber:                [{ required: true, message: '请输入关联合同编号',  trigger: 'blur' }],
         g:                [{ required: true, message: '请输入是否中介介入',  trigger: 'blur' }],
         h:                [{ required: true, message: '请输入中介人',  trigger: 'blur' }],
         deliveryDate:     [{ type: 'date', required: true, message: '请选择交付日', trigger: 'change'}],
@@ -458,6 +472,51 @@ export default {
     await this.getDict('Intermediary')
   },
   methods: {
+    setFeeClear() {
+      this.formData.rent = 0
+      this.formData.serviceCharge = 0 
+      this.formData.propertyManagementFee = 0
+      this.formData.contractGrandTotal = 0
+    },
+    setContractGrandTotal() {
+      if(this.beginToEnd.length === 2){
+        let begin = this.beginToEnd[0]
+        let end = this.beginToEnd[1]
+        if(this.formData.univalence === 0){
+          let day = (end - begin) / (1000 * 60 * 60 * 24) + 1
+          this.formData.contractGrandTotal = day * (this.formData.rent + this.formData.serviceCharge + this.formData.propertyManagementFee)
+        }
+        else if (this.formData.univalence === 1){
+          let endDate = new Date(end)
+          let endYear = endDate.getFullYear()
+          let endMonth = endDate.getMonth() + 1
+          let endDay = endDate.getDate()
+          
+          let beginDate = new Date(begin)
+          let beginYear = beginDate.getFullYear()
+          let beginMonth = beginDate.getMonth() + 1
+          let beginDay = beginDate.getDate()
+
+          let diffYear = endYear - beginYear
+          let diffMonth = endMonth - beginMonth
+          let diffDay = endDay - beginDay
+
+          let month = diffYear * 12 + diffMonth
+          if(diffDay > -1) {
+            month = month + (diffDay + 1) * 12 / 365
+            console.log("1")
+          }
+          else if (diffDay < -1) {
+            month = month - 1
+            let preEnd = new Date(endYear, endMonth-1, beginDay)
+            month = month + (end - preEnd + 1) / (1000 * 60 * 60 * 24)
+            console.log("2")
+          }
+          console.log(month)
+          this.formData.contractGrandTotal = month * (this.formData.rent + this.formData.serviceCharge + this.formData.propertyManagementFee)
+        }
+      }
+    },
     async setContractNumber(){
       this.formData.contractNumber = ''
       const res = await getProjectInformationList({ page: 1, pageSize: 999 })
