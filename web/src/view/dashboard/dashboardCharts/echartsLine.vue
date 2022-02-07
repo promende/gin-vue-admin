@@ -1,13 +1,9 @@
 <template>
-  <div class="dashboard-line-box">
-    <div class="dashboard-line-title">
-      访问趋势
-    </div>
-    <div
-      ref="echart"
-      class="dashboard-line"
-    />
-  </div>
+  <el-carousel :interval="4000" type="card" height="200px">
+    <el-carousel-item v-for="item in 6" :key="item">
+      <h3>{{ item }}</h3>
+    </el-carousel-item>
+  </el-carousel>
 </template>
 <script>
 import * as echarts from 'echarts'

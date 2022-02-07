@@ -65,7 +65,7 @@
             >前往初始化</el-button> -->
             <el-button
               type="primary"
-              style="width: 46%; margin-left: 50%"
+              style="width:25%;display:block;margin:0 auto"
               @click="submitForm"
             >登 录</el-button>
           </el-form-item>
@@ -145,20 +145,20 @@ export default {
   },
   methods: {
     ...mapActions('user', ['LoginIn']),
-    async checkInit() {
-      const res = await checkDB()
-      if (res.code === 0) {
-        if (res.data?.needInit) {
-          this.$store.commit('user/NeedInit')
-          this.$router.push({ name: 'Init' })
-        } else {
-          this.$message({
-            type: 'info',
-            message: '已配置数据库信息，无法初始化'
-          })
-        }
-      }
-    },
+    // async checkInit() {
+    //   const res = await checkDB()
+    //   if (res.code === 0) {
+    //     if (res.data?.needInit) {
+    //       this.$store.commit('user/NeedInit')
+    //       this.$router.push({ name: 'Init' }) 
+    //     } else {
+    //       this.$message({
+    //         type: 'info',
+    //         message: '已配置数据库信息，无法初始化'
+    //       })
+    //     }
+    //   }
+    // },
     async login() {
       return await this.LoginIn(this.loginForm)
     },

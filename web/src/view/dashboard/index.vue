@@ -39,26 +39,38 @@
           <span>数据统计</span>
         </div>
         <div class="echart-box">
+          <dashboardData />
+        </div>
+      </div>
+    </div>
+    <!-- <div class="gva-card-box">
+      <div class="gva-card">
+        <div class="card-header">
+          <span>荣誉展览</span>
+        </div>
+        <div class="echart-box">
           <el-row :gutter="20">
             <el-col :xs="24" :sm="18">
-              <echarts-line />
+              <echartsLine />
             </el-col>
             <el-col :xs="24" :sm="6">
-              <dashboard-table />
+              <dashboardTable />
             </el-col>
           </el-row>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
+import dashboardData from '@/view/dashboard/dashboardData/dashboardData.vue'
 import echartsLine from '@/view/dashboard/dashboardCharts/echartsLine.vue'
 import dashboardTable from '@/view/dashboard/dashboardTable/dashboardTable.vue'
 import dashboardCartographicData from '@/view/dashboard/dashboardCartographicData/dashboardCartographicData.vue'
 export default {
   name: 'Dashboard',
   components: {
+    dashboardData,
     echartsLine,
     dashboardTable,
     dashboardCartographicData

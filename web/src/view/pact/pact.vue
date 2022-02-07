@@ -141,7 +141,7 @@
                 </el-descriptions-item>
               </template>
               <el-descriptions-item label="合同总金额" label-align="center" align="left" width="80px" span="2">
-                {{ scope.row.contractGrandTotal }}
+                {{ parseFloat(scope.row.contractGrandTotal).toFixed(2) }}
               </el-descriptions-item>
               <el-descriptions-item label="设置费" label-align="center" align="left" width="80px">
                 {{ scope.row.setUpFee }}
@@ -153,7 +153,7 @@
                 <el-tag v-if="scope.row.auditType===0" class="ml-2" type="success">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
                 <el-tag v-else class="ml-2" type="danger">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px">
+              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px" span="2">
                 {{ formatDate(scope.row.CreatedAt) }}
               </el-descriptions-item>  
               <el-descriptions-item label="备注" label-align="center" align="left" width="80px">
@@ -178,7 +178,7 @@
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updatePact(scope.row);handleRowClick(scope.row)">变更</el-button>
-            <el-button type="text" icon="delete" size="mini" @click="deletePact(scope.row);handleRowClick(scope.row)">删除</el-button>
+            <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row);handleRowClick(scope.row)">删除</el-button>
             <el-button v-if="scope.row.auditType===0" type="text" icon="tools" size="small" @click="handleRowClick(scope.row);changeAuditType1(scope.row);">取消审核</el-button>
             <el-button v-else type="text" icon="tools" size="small" @click="handleRowClick(scope.row);changeAuditType(scope.row);">审核</el-button> 
             </template>
@@ -204,13 +204,14 @@
             style="width:100%"
             :options="housingOptions"
             :props="{ multiple:false, label:'label', value:'value', disabled:'disabled', checkStrictly:false}"
-            @visible-change="setHousingOptions"
+            @visible-change="setHousingOptions" 
+            :disabled="this.formData.auditType===0"
           />
         </el-form-item>
         <el-row style="margin-top:-10px">
             <el-col :span="12">
               <el-form-item label="商家名称" prop="b">
-                <el-select v-model="formData.merchant" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCustomerOptions" @change="setPrincipal">
+                <el-select v-model="formData.merchant" placeholder="请选择" style="width:100%" default-first-option clearable filterable @visible-change="setCustomerOptions" @change="setPrincipal" :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in customerOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -224,14 +225,14 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="合同类型" prop="c">
-                <el-select v-model="formData.contractType" placeholder="请选择" style="width:100%" clearable>
+                <el-select v-model="formData.contractType" placeholder="请选择" style="width:100%" clearable :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in contractTypeOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="合同签署" prop="d">
-                <el-select v-model="formData.contractSigning" placeholder="请选择" style="width:100%" clearable>
+                <el-select v-model="formData.contractSigning" placeholder="请选择" style="width:100%" clearable :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in contractSigningOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -240,21 +241,21 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="是否续签" prop="e">
-                <el-select v-model="formData.renew" placeholder="请选择" style="width:30%" clearable  @visible-change="setAssociatedContractNumber">
+                <el-select v-model="formData.renew" placeholder="请选择" style="width:30%" clearable  @visible-change="setAssociatedContractNumber" :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in renewOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="关联合同编号" v-if="this.formData.renew === 0" prop="associatedContractNumber">
-                <el-input v-model="formData.associatedContractNumber" clearable placeholder="请输入" />
+                <el-input v-model="formData.associatedContractNumber" clearable placeholder="请输入"  :disabled="this.formData.auditType===0"/>
               </el-form-item>
             </el-col>
         </el-row>
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="是否中介介入" prop="g">
-                <el-select v-model="formData.intermediary" placeholder="请选择" style="width:30%" clearable @visible-change="setMiddlemanSelects">
+                <el-select v-model="formData.intermediary" placeholder="请选择" style="width:30%" clearable @visible-change="setMiddlemanSelects" :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in IntermediaryOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -268,6 +269,7 @@
                   :options="middlemanOptions"
                   :props="{ multiple:false, label:'label', value:'value', disabled:'disabled'}"
                   @visible-change="setMiddlemanOptions"
+                  :disabled="this.formData.auditType===0"
                 />
               </el-form-item>
             </el-col>
@@ -275,7 +277,7 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="交付日" style="margin-top:-10px" prop="deliveryDate">
-                <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable />
+                <el-date-picker v-model="formData.deliveryDate" type="date" style="width:100%" placeholder="选择日期" clearable  :disabled="this.formData.auditType===0"/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -286,6 +288,7 @@
                   end-placeholder="合同结束时间"
                   unlink-panels
                   @change="setContractGrandTotal"
+                  :disabled="this.formData.auditType===0"
                 />
               </el-form-item>
             </el-col>
@@ -293,14 +296,14 @@
         <el-row style="margin-top:-20px">
             <el-col :span="12">
               <el-form-item label="单价" prop="univalence">
-                <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable @visible-change="setFeeClear()">
+                <el-select v-model="formData.univalence" placeholder="请选择" style="width:100%" clearable @visible-change="setFeeClear()" :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in univalenceOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="支付周期" prop="paymentCycle">
-                <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable>
+                <el-select v-model="formData.paymentCycle" placeholder="请选择" style="width:100%" clearable :disabled="this.formData.auditType===0">
                   <el-option v-for="(item,key) in paymentCycleOptions" :key="key" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
@@ -308,52 +311,52 @@
         </el-row>
         <template v-if="formData.univalence===0">
           <el-form-item label="日租金" prop="rent">
-            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="日服务费" prop="serviceCharge">
-            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="日物管费" prop="propertyManagementFee">
-            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="合同总金额" prop="contractGrandTotal">
             <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable disabled/>
           </el-form-item>
           <el-form-item label="设置费" prop="setUpFee">
-            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable  :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="保证金" prop="earnestMoney">
-            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable  :disabled="this.formData.auditType===0"/>
           </el-form-item>
         </template>
         <template v-if="formData.univalence===1">
           <el-form-item label="月租金" prop="rent">
-            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.rent"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="月服务费" prop="serviceCharge">
-            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.serviceCharge"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="月物管费" prop="propertyManagementFee">
-            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal"/>
+            <el-input-number v-model="formData.propertyManagementFee"  style="width:100%" :precision="2" clearable  @change="setContractGrandTotal" :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="合同总金额" prop="contractGrandTotal">
             <el-input-number v-model="formData.contractGrandTotal"  style="width:100%" :precision="2" clearable disabled/>
           </el-form-item>
           <el-form-item label="设置费" prop="setUpFee">
-            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.setUpFee"  style="width:100%" :precision="2" clearable  :disabled="this.formData.auditType===0"/>
           </el-form-item>
           <el-form-item label="保证金" prop="earnestMoney">
-            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable />
+            <el-input-number v-model="formData.earnestMoney"  style="width:100%" :precision="2" clearable :disabled="this.formData.auditType===0"/>
           </el-form-item>
         </template>
-        <el-form-item label="备注">
-          <el-input v-model="formData.remark" clearable placeholder="请输入" />
+        <el-form-item label="备注" style="margin-top:-10px">
+          <el-input v-model="formData.remark" clearable placeholder="请输入" :disabled="this.formData.auditType===0"/>
         </el-form-item>
-        <el-form-item label="审核状态">
+        <!-- <el-form-item label="审核状态">
           <el-select v-model="formData.auditType" placeholder="请选择" style="width:100%" clearable disabled>
             <el-option v-for="(item,key) in auditTypeOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -504,18 +507,18 @@ export default {
           let month = diffYear * 12 + diffMonth
           if(diffDay > -1) {
             month = month + (diffDay + 1) * 12 / 365
-            console.log("1")
           }
           else if (diffDay < -1) {
             month = month - 1
             let preEnd = new Date(endYear, endMonth-1, beginDay)
             month = month + (end - preEnd + 1) / (1000 * 60 * 60 * 24)
-            console.log("2")
           }
-          console.log(month)
-          this.formData.contractGrandTotal = month * (this.formData.rent + this.formData.serviceCharge + this.formData.propertyManagementFee)
+          this.formData.contractGrandTotal = month * (this.formData.rent + this.formData.serviceCharge + this.formData.propertyManagementFee)   
         }
       }
+    },
+    rounding(row, column) {
+      return parseFloat(row[column.property]).toFixed(2)
     },
     async setContractNumber(){
       this.formData.contractNumber = ''
@@ -643,8 +646,12 @@ export default {
                   const housingOption = {
                     label: housingItem.name,
                     value: housingItem.name,
+                    disabled: '',
                     children: []
                   }
+                  if(housingItem.state === 1){
+                      housingOption.disabled = "disabled"
+                    }
                   floorOption.children.push(housingOption)
                 }
               })
