@@ -122,8 +122,8 @@ export default {
     return {
       lock: 'lock',
       loginForm: {
-        username: 'admin',
-        password: '123456',
+        username: '',
+        password: '',
         captcha: '',
         captchaId: ''
       },

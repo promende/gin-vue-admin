@@ -153,7 +153,7 @@
                 <el-tag v-if="scope.row.auditType===0" class="ml-2" type="success">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
                 <el-tag v-else class="ml-2" type="danger">{{ filterDict(scope.row.auditType,"auditType") }}</el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px" span="2">
+              <el-descriptions-item label="创建日期" label-align="center" align="left" width="80px">
                 {{ formatDate(scope.row.CreatedAt) }}
               </el-descriptions-item>  
               <el-descriptions-item label="备注" label-align="center" align="left" width="80px">
