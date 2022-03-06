@@ -46,8 +46,10 @@
                 <el-button icon="delete" size="mini" style="margin-left: 10px;" :disabled="!multipleSelection.length">删除</el-button>
             </template>
             </el-popover>
+            <el-button style="margin-left:10px" size="mini" type="primary" icon="download" @click="exportExcel">导出</el-button>
         </div>
         <el-table
+        id="rebateSetTable"
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
@@ -140,6 +142,8 @@ import { getIntermediaryCompanyList } from '@/api/intermediaryCompany' //  此�
 import infoList from '@/mixins/infoList'
 import { getUserList } from '@/api/user'
 import { mapGetters, mapActions } from 'vuex'
+import * as XLSX from 'xlsx';
+import FileSaver from 'file-saver'
 export default {
   name: 'Middleman',
   mixins: [infoList],
@@ -182,6 +186,65 @@ export default {
     ...mapGetters('user', ['userInfo', 'sideMode', 'baseColor']),
   },
   methods: {
+    async exportExcel() {
+      /* generate workbook object from table */
+      let oldPageSize = this.pageSize
+      this.pageSize = 100
+      await this.getTableData()
+      let xlsxParam = { raw: true } // 导出的内容只做解析，不进行格式转换
+      let wb = XLSX.utils.table_to_book(document.querySelector('#rebateSetTable'), xlsxParam);
+      let ref = wb.Sheets.Sheet1['!ref']
+      let flag = 0
+      let maxCols = ""
+      let maxRows = ""
+      for(let i = 0; i < ref.length; i++){
+        if(ref[i] === ":"){
+          flag = 1;
+          continue
+        }
+        if(flag === 1){
+          if(ref[i]>="A"&&ref[i]<="Z"){
+            maxCols += ref[i]
+          }
+          else{
+            maxRows += ref[i];
+          }
+        }
+      }
+      for(let i = 0; i<=maxRows; i++){
+        let cell = maxCols + i
+        wb.Sheets.Sheet1[cell] = ''
+        let firstCell = 'A' + i
+        if(i === 1){
+            wb.Sheets.Sheet1[firstCell] = {
+            t: "s",
+            v: "序号"
+          }
+        }
+        else{
+            wb.Sheets.Sheet1[firstCell] = {
+            t: "s",
+            v: (i - 1).toString()
+          }
+        }
+      }
+      /* get binary string as output */
+      console.log(wb.Sheets.Sheet1)
+      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' });
+      // console.log(wbout)
+      try {
+          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '中介联系人台账表.xlsx');
+      } catch (e)
+      {
+        if (typeof console !== 'undefined')
+            console.log(e, wbout)
+      }
+
+      this.pageSize = oldPageSize
+      await this.getTableData()
+      
+      return wbout
+    },
     async setTelephoneNumberList() {
       this.telephoneNumberList = []
       const res = await getMiddlemanList({ page: 1, pageSize: 999 })

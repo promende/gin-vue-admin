@@ -51,8 +51,10 @@
                 <el-button icon="delete" size="mini" style="margin-left: 10px;" :disabled="!multipleSelection.length">删除</el-button>
             </template>
             </el-popover>
+            <el-button style="margin-left:10px" size="mini" type="primary" icon="download" @click="exportExcel">导出</el-button>
         </div>
         <el-table
+        id="rebateSetTable"
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
@@ -111,8 +113,8 @@
         <el-table-column align="left" label="联系人" prop="linkman" width="120" />
         <el-table-column align="left" label="联系电话" prop="telephone" width="120" />
         <!-- <el-table-column align="left" label="身份证号" prop="iDNumber" width="120" />
-        <el-table-column align="left" label="详细地址" prop="address" width="120" /> -->
-        <!-- <el-table-column align="left" label="开票名称" prop="invoice" width="120" />
+        <el-table-column align="left" label="详细地址" prop="address" width="120" />
+        <el-table-column align="left" label="开票名称" prop="invoice" width="120" />
         <el-table-column align="left" label="开户银行" prop="bank" width="120" />
         <el-table-column align="left" label="开户账号" prop="account" width="120" />
         <el-table-column align="left" label="备注" prop="remark" width="120" /> -->
@@ -213,6 +215,8 @@ import {
 } from '@/api/customerData' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
 import { getUserList } from '@/api/user'
+import * as XLSX from 'xlsx';
+import FileSaver from 'file-saver'
 export default {
   name: 'Customer',
   mixins: [infoList],
@@ -261,6 +265,65 @@ export default {
     await this.getDict('auditType')
   },
   methods: {
+    async exportExcel() {
+      /* generate workbook object from table */
+      let oldPageSize = this.pageSize
+      this.pageSize = 100
+      await this.getTableData()
+      let xlsxParam = { raw: true } // 导出的内容只做解析，不进行格式转换
+      let wb = XLSX.utils.table_to_book(document.querySelector('#rebateSetTable'), xlsxParam);
+      let ref = wb.Sheets.Sheet1['!ref']
+      let flag = 0
+      let maxCols = ""
+      let maxRows = ""
+      for(let i = 0; i < ref.length; i++){
+        if(ref[i] === ":"){
+          flag = 1;
+          continue
+        }
+        if(flag === 1){
+          if(ref[i]>="A"&&ref[i]<="Z"){
+            maxCols += ref[i]
+          }
+          else{
+            maxRows += ref[i];
+          }
+        }
+      }
+      for(let i = 0; i<=maxRows; i++){
+        let cell = maxCols + i
+        wb.Sheets.Sheet1[cell] = ''
+        let firstCell = 'A' + i
+        if(i === 1){
+            wb.Sheets.Sheet1[firstCell] = {
+            t: "s",
+            v: "序号"
+          }
+        }
+        else{
+            wb.Sheets.Sheet1[firstCell] = {
+            t: "s",
+            v: (i - 1).toString()
+          }
+        }
+      }
+      /* get binary string as output */
+      console.log(wb.Sheets.Sheet1)
+      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' });
+      // console.log(wbout)
+      try {
+          FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '客户台账表.xlsx');
+      } catch (e)
+      {
+        if (typeof console !== 'undefined')
+            console.log(e, wbout)
+      }
+
+      this.pageSize = oldPageSize
+      await this.getTableData()
+      
+      return wbout
+    },
     handleRowClick(row) {
       row.expanded = !row.expanded;
       this.$refs.multipleTable.toggleRowExpansion(row, row.expanded);
