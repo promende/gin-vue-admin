@@ -83,7 +83,7 @@ mysql:
   config: charset=utf8mb4&parseTime=True&loc=Local
   db-name: diploma
   username: root
-  password: fengjiawei
+  password: 123456
   max-idle-conns: 0
   max-open-conns: 0
   log-mode: ""

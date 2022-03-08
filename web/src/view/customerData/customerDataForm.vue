@@ -213,41 +213,6 @@ export default {
       await this.getTableData()
       let xlsxParam = { raw: true } // 导出的内容只做解析，不进行格式转换
       let wb = XLSX.utils.table_to_book(document.querySelector('#rebateSetTable'), xlsxParam);
-      let ref = wb.Sheets.Sheet1['!ref']
-      let flag = 0
-      let maxCols = ""
-      let maxRows = ""
-      for(let i = 0; i < ref.length; i++){
-        if(ref[i] === ":"){
-          flag = 1;
-          continue
-        }
-        if(flag === 1){
-          if(ref[i]>="A"&&ref[i]<="Z"){
-            maxCols += ref[i]
-          }
-          else{
-            maxRows += ref[i];
-          }
-        }
-      }
-      for(let i = 0; i<=maxRows; i++){
-        let cell = maxCols + i
-        wb.Sheets.Sheet1[cell] = ''
-        let firstCell = 'A' + i
-        if(i === 1){
-            wb.Sheets.Sheet1[firstCell] = {
-            t: "s",
-            v: "序号"
-          }
-        }
-        else{
-            wb.Sheets.Sheet1[firstCell] = {
-            t: "s",
-            v: (i - 1).toString()
-          }
-        }
-      }
       /* get binary string as output */
       console.log(wb.Sheets.Sheet1)
       let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' });

@@ -46,7 +46,7 @@
                 <el-button icon="delete" size="mini" style="margin-left: 10px;" :disabled="!multipleSelection.length">删除</el-button>
             </template>
             </el-popover>
-            <el-button style="margin-left:10px" size="mini" type="primary" icon="download" @click="exportExcel">导出</el-button>
+            <!-- <el-button style="margin-left:10px" size="mini" type="primary" icon="download" @click="exportExcel">导出</el-button> -->
         </div>
         <el-table
         id="rebateSetTable"
