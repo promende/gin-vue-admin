@@ -96,7 +96,7 @@
     <el-card class="box-card" style="width: 700px;margin-left:100px;margin-top:20px">
       <template #header>
         <div class="card-header" style="margin-top:30px;margin-left:30px">
-          <span style="font-size:24px;font-weight:bolder;">招商数据</span>
+          <span style="font-size:24px;font-weight:bolder;">评奖数据</span>
         </div>
       </template>
       <el-row :gutter="20">
@@ -371,7 +371,18 @@ export default {
       this.bNumber7 = res1[0]
       res1 =Object.keys(dic4).sort(function(a,b){ return dic4[a]-dic4[b]; });
       this.bNumber8 = res1[0]
-      
+      if(this.bNumber5===undefined){
+        this.bNumber5 = "无"
+      }
+      if(this.bNumber6===undefined){
+        this.bNumber6 = "无"
+      }
+      if(this.bNumber7===undefined){
+        this.bNumber7 = "无"
+      }
+      if(this.bNumber8===undefined){
+        this.bNumber8 = "无"
+      }
     },
     async setcNumber(){
       var now = new Date()
@@ -532,6 +543,18 @@ export default {
       this.cNumber7 = res1[0]
       res1 =Object.keys(dic4).sort(function(a,b){ return dic4[a]-dic4[b]; });
       this.cNumber8 = res1[0]
+      if(this.cNumber5===undefined){
+        this.cNumber5 = "无"
+      }
+      if(this.cNumber6===undefined){
+        this.cNumber6 = "无"
+      }
+      if(this.cNumber7===undefined){
+        this.cNumber7 = "无"
+      }
+      if(this.cNumber8===undefined){
+        this.cNumber8 = "无"
+      }
     },
     async setClientNumber() {
       this.sumClientNumber = 0

@@ -76,6 +76,9 @@ export default {
     // ip 定位
     getLngLatLocation() {
       var that = this
+      var map = new AMap.Map('container', {
+        resizeEnable: true
+      })
       AMap.plugin("AMap.CitySearch", function () {
         var citySearch = new AMap.CitySearch();
         var result = '';

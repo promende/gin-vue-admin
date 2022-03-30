@@ -131,9 +131,9 @@
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateCustomer(scope.row);handleRowClick(scope.row)">变更</el-button>
-            <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row);handleRowClick(scope.row)">删除</el-button>
-            <el-button v-if="scope.row.audit===0" type="text" icon="tools" size="small" @click="changeAuditType1(scope.row);handleRowClick(scope.row)">取消审核</el-button>
-            <el-button v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row);handleRowClick(scope.row)">审核</el-button> 
+            <el-button v-auth.not="94" type="text" icon="delete" size="mini" @click="deleteRow(scope.row);handleRowClick(scope.row)">删除</el-button>
+            <el-button v-auth.not="94" v-if="scope.row.audit===0" type="text" icon="tools" size="small" @click="changeAuditType1(scope.row);handleRowClick(scope.row)">取消审核</el-button>
+            <el-button v-auth.not="94" v-else type="text" icon="tools" size="small" @click="changeAuditType(scope.row);handleRowClick(scope.row)">审核</el-button> 
             </template>
         </el-table-column>
         </el-table>

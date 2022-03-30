@@ -11,6 +11,8 @@
           >
           <p class="login_panle_form_title_p">{{ $GIN_VUE_ADMIN.appName }}</p>
         </div>
+        <el-alert title="已有默认的账号与密码，请输入验证码进行登录操作，如有系统问题，请登录https://www.justwei.cn/，头像下方有联系方式" type="success" show-icon> </el-alert>
+        <br>
         <el-form
           ref="loginForm"
           :model="loginForm"
@@ -122,8 +124,8 @@ export default {
     return {
       lock: 'lock',
       loginForm: {
-        username: '',
-        password: '',
+        username: 'admin',
+        password: '123456',
         captcha: '',
         captchaId: ''
       },
@@ -142,6 +144,7 @@ export default {
   },
   created() {
     this.loginVerify()
+    // this.$Message.info("查询");
   },
   methods: {
     ...mapActions('user', ['LoginIn']),
